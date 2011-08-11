@@ -6,22 +6,23 @@
 
 /// @TODO: support for iterator
 /// @TODO: support for const_iterator (partially prepared)
-/// @TODO: support for ranges
-/// @TODO: rework method 'extend'
+/// @TODO: support for ranges:
+///        - copy_constructor(const_iterator begin_inclusive, const_iterator end_exclusive)
+///        - append(bitset)
+///        - set(bitset)
 /// @TODO: test also for big-endian
 /// @TODO: documentation
-/// @TODO: define as template to support other types for block_type??
-class bitset
+template <typename Block = uint8_t> class bitset
 {
 	public:
-		typedef uint8_t block_type;
-	private:
+		typedef Block block_type;
 		enum { BITS_PER_BYTE = 8 };
-		enum { BLOCK_BITS = sizeof(block_type) * BITS_PER_BYTE };
-		typedef std::vector<block_type> Data;
+		enum { BITS_PER_BLOCK = sizeof(block_type) * BITS_PER_BYTE };
+	private:
+		typedef typename std::vector<block_type> Data;
 	public:
-		typedef Data::size_type size_type;
-		typedef Data::const_iterator data_const_iterator;
+		typedef typename Data::size_type size_type;
+		typedef typename Data::const_iterator data_const_iterator;
 
 		class const_iterator
 		{
@@ -51,7 +52,7 @@ class bitset
 		/// Extension is always one block.
 		void extend(size_type bits)
 		{
-			size_type n_blocks = (pos + bits + BLOCK_BITS - 1) / BLOCK_BITS;
+			size_type n_blocks = (pos + bits + BITS_PER_BLOCK - 1) / BITS_PER_BLOCK;
 			if (n_blocks > data.capacity()) {
 				data.reserve(n_blocks);
 				while (bits > capacity() - pos) {
@@ -65,21 +66,21 @@ class bitset
 		///
 		/// @param[in] v The data to append to the bitset.
 		/// @param[in] bits The number of bits to append. This value must be
-		///            between 0 and BLOCK_BITS. If not all bits are being
+		///            between 0 and BITS_PER_BLOCK. If not all bits are being
 		///            appended, only the least significant bits are being taken.
-		void append_block(block_type v, size_type bits = BLOCK_BITS)
+		void append_block(block_type v, size_type bits = BITS_PER_BLOCK)
 		{
 			if (bits == 0) return;
 			extend(bits);
-			size_type i = pos / BLOCK_BITS; // index of current block
-			size_type u_bits = BLOCK_BITS - (pos % BLOCK_BITS); // number of bits unused within the current block
+			size_type i = pos / BITS_PER_BLOCK; // index of current block
+			size_type u_bits = BITS_PER_BLOCK - (pos % BITS_PER_BLOCK); // number of bits unused within the current block
 			if (u_bits >= bits) {
 				// enough room within current block
 				data[i] |= v << (u_bits - bits);
 			} else {
 				// not enough room, split value to current and next block
 				data[i+0] |= v >> (bits - u_bits);
-				data[i+1] |= v << (BLOCK_BITS - (bits - u_bits));
+				data[i+1] |= v << (BITS_PER_BLOCK - (bits - u_bits));
 			}
 			pos += bits;
 		}
@@ -91,12 +92,12 @@ class bitset
 		/// @param[in] ofs The offset in bits at which the data has to be written.
 		/// @param[in] bits The number of bits of the data to be written
 		///            If not all bits are being written, only the least significant bits are being taken.
-		void set_block(block_type v, size_type ofs, size_type bits = BLOCK_BITS)
+		void set_block(block_type v, size_type ofs, size_type bits = BITS_PER_BLOCK)
 		{
 			if (bits == 0) return;
 			if (ofs + bits > capacity()) extend(ofs + bits - capacity());
-			size_type i = ofs / BLOCK_BITS; // index of current block
-			size_type u_bits = BLOCK_BITS - (ofs % BLOCK_BITS); // number of bits unused within the current block
+			size_type i = ofs / BITS_PER_BLOCK; // index of current block
+			size_type u_bits = BITS_PER_BLOCK - (ofs % BITS_PER_BLOCK); // number of bits unused within the current block
 			if (u_bits >= bits) {
 				// enough room within current block
 				block_type mask = ~((1 << (u_bits - bits)) - 1);
@@ -104,10 +105,10 @@ class bitset
 			} else {
 				// not enough room, split value to current and next block
 				block_type mask0 = ~((1 << (bits - u_bits)) - 1);
-				block_type mask1 = (1 << (BLOCK_BITS - (bits - u_bits))) - 1;
+				block_type mask1 = (1 << (BITS_PER_BLOCK - (bits - u_bits))) - 1;
 
 				data[i+0] = (data[i+0] & mask0) | v >> (bits - u_bits);
-				data[i+1] = (data[i+1] & mask1) | v << (BLOCK_BITS - (bits - u_bits));
+				data[i+1] = (data[i+1] & mask1) | v << (BITS_PER_BLOCK - (bits - u_bits));
 			}
 			if (ofs + bits > pos) pos = ofs + bits;
 		}
@@ -119,12 +120,12 @@ class bitset
 		/// @param[in] bits Number of bits to be read.
 		///            If the number of bits is smaller than what the specified data can
 		///            hold, only the least significant bits are being set.
-		void get_block(block_type & v, size_type ofs, size_type bits = BLOCK_BITS)
+		void get_block(block_type & v, size_type ofs, size_type bits = BITS_PER_BLOCK)
 		{
 			if (bits == 0) return;
 			if (ofs + bits > size()) return;
-			size_type i = ofs / BLOCK_BITS; // index of current block
-			size_type u_bits = BLOCK_BITS - (ofs % BLOCK_BITS); // number of bits unused within the current block
+			size_type i = ofs / BITS_PER_BLOCK; // index of current block
+			size_type u_bits = BITS_PER_BLOCK - (ofs % BITS_PER_BLOCK); // number of bits unused within the current block
 			if (u_bits >= bits) {
 				// desired data fully within the current block
 				block_type mask = (1 << u_bits) - 1;
@@ -132,8 +133,8 @@ class bitset
 			} else {
 				// desired value is part from current block and part from next
 				block_type mask0 = (1 << u_bits) - 1;
-				block_type mask1 = ((1 << (BLOCK_BITS - (bits - u_bits))) - 1) << (bits - u_bits);
-				v = (data[i+0] & mask0) << (bits - u_bits) | (data[i+1] & mask1) >> (BLOCK_BITS - (bits - u_bits));
+				block_type mask1 = ((1 << (BITS_PER_BLOCK - (bits - u_bits))) - 1) << (bits - u_bits);
+				v = (data[i+0] & mask0) << (bits - u_bits) | (data[i+1] & mask1) >> (BITS_PER_BLOCK - (bits - u_bits));
 			}
 		}
 	public:
@@ -145,7 +146,7 @@ class bitset
 		/// been occupied.
 		size_type capacity() const
 		{
-			return data.size() * BLOCK_BITS;
+			return data.size() * BITS_PER_BLOCK;
 		}
 
 		/// Returns the number of used bits.
@@ -171,8 +172,8 @@ class bitset
 		bool get_bit(size_type i) const
 		{
 			if (i > size()) return false;
-			size_type n_bit = BLOCK_BITS - (i % BLOCK_BITS) - 1; // bit within the block to be read
-			return (data[i / BLOCK_BITS] >> n_bit) & 1 ? true : false;
+			size_type n_bit = BITS_PER_BLOCK - (i % BITS_PER_BLOCK) - 1; // bit within the block to be read
+			return (data[i / BITS_PER_BLOCK] >> n_bit) & 1 ? true : false;
 		}
 
 		/// Returns a const iterator to the beginning of the data itself.
@@ -204,12 +205,12 @@ class bitset
 			if (bits == 0) return;
 			if (bits > sizeof(v) * BITS_PER_BYTE) return; // TODO: no padding supported
 			block_type * p = reinterpret_cast<block_type *>(&v);
-			size_type n_bits = bits % BLOCK_BITS; // incomplete blocks
+			size_type n_bits = bits % BITS_PER_BLOCK; // incomplete blocks
 			if (n_bits != 0) {
 				append_block(*p, n_bits);
 				bits -= n_bits;
 			}
-			for (; bits > 0; bits -= BLOCK_BITS, ++p) {
+			for (; bits > 0; bits -= BITS_PER_BLOCK, ++p) {
 				append_block(*p);
 			}
 		}
@@ -226,15 +227,15 @@ class bitset
 			if (bits > sizeof(v) * BITS_PER_BYTE) return; // TODO: no padding supported
 			if (ofs + bits > capacity()) extend(ofs + bits - capacity());
 			block_type * p = reinterpret_cast<block_type *>(&v);
-			size_type n_bits = bits % BLOCK_BITS; // incomplete block
+			size_type n_bits = bits % BITS_PER_BLOCK; // incomplete block
 			if (n_bits != 0) {
 				set_block(*p, ofs, n_bits);
 				ofs += n_bits;
 				bits -= n_bits;
 			}
-			for (; bits > 0; bits -= BLOCK_BITS, ++p) {
+			for (; bits > 0; bits -= BITS_PER_BLOCK, ++p) {
 				set_block(*p, ofs);
-				ofs += BLOCK_BITS;
+				ofs += BITS_PER_BLOCK;
 			}
 		}
 
@@ -256,8 +257,8 @@ class bitset
 
 			v = 0; // clear result
 
-			size_type u_bits = BLOCK_BITS - (ofs % BLOCK_BITS); // number of bits unused within the current block
-			size_type q_bits = (ofs + bits) % BLOCK_BITS; // number of bits unused within the last block
+			size_type u_bits = BITS_PER_BLOCK - (ofs % BITS_PER_BLOCK); // number of bits unused within the current block
+			size_type q_bits = (ofs + bits) % BITS_PER_BLOCK; // number of bits unused within the last block
 
 			block_type block;
 
@@ -268,11 +269,11 @@ class bitset
 				bits -= u_bits;
 			}
 
-			for (; bits > q_bits; bits -= BLOCK_BITS) {
+			for (; bits > q_bits; bits -= BITS_PER_BLOCK) {
 				get_block(block, ofs);
-				v <<= BLOCK_BITS;
+				v <<= BITS_PER_BLOCK;
 				v += block;
-				ofs += BLOCK_BITS;
+				ofs += BITS_PER_BLOCK;
 			}
 
 			if (q_bits > 0) {
@@ -285,14 +286,15 @@ class bitset
 
 template <typename T> static void dump(T v, int b = sizeof(T) * 8)
 {
-	for (int i = b-1; i >= 0; --i) {
-		printf("%d", (v >> i) & 0x1);
+	for (int i = 0; i < b; ++i) {
+		if (i % bitset<T>::BITS_PER_BYTE == 0) printf(" ");
+		printf("%d", (v >> (b - i - 1)) & 0x1);
 	}
 }
 
 int main(int, char **)
 {
-	bitset s;
+	bitset<uint8_t> s;
 
 	uint8_t w = 0;
 	uint16_t x = 0;
@@ -321,8 +323,8 @@ int main(int, char **)
 	s.set(1, 40, 1);
 */
 	printf("\n %u / %u : ", s.size(), s.capacity());
-	for (bitset::size_type i = 0; i < s.size(); ++i) {
-		if (i % 8 == 0) printf(" ");
+	for (bitset<uint8_t>::size_type i = 0; i < s.size(); ++i) {
+		if (i % bitset<uint8_t>::BITS_PER_BYTE == 0) printf(" ");
 		printf("%d", s[i] ? 1 : 0);
 	}
 	printf("\n");
