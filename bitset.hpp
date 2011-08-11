@@ -10,6 +10,8 @@
 ///        - append(bitset)
 ///        - set(bitset)
 /// @TODO: test also for big-endian
+/// @TODO: padding for 'append' and 'set'
+/// @TODO: really ignoring the failure of 'set', 'append' and 'get'?
 /// @TODO: documentation
 template <typename Block, class Container = std::vector<Block> > class bitset
 {
