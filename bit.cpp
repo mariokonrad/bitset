@@ -4,28 +4,64 @@
 #include <vector>
 #include <cstdio>
 
+/// @TODO: support for iterator
+/// @TODO: support for const_iterator (partially prepared)
+/// @TODO: support for ranges
+/// @TODO: rework method 'extend'
+/// @TODO: test also for big-endian
+/// @TODO: documentation
 class bitset
 {
 	public:
 		typedef uint8_t block_type;
 	private:
-		enum { BLOCK_BITS = sizeof(block_type) * 8 };
+		enum { BITS_PER_BYTE = 8 };
+		enum { BLOCK_BITS = sizeof(block_type) * BITS_PER_BYTE };
 		typedef std::vector<block_type> Data;
 	public:
 		typedef Data::size_type size_type;
+
+		class const_iterator
+		{
+				friend class bitset;
+			private:
+				const bitset * const bs;
+				size_type pos;
+
+				const_iterator(const bitset * const bs)
+					: bs(bs)
+					, pos(0)
+				{}
+			public:
+				const_iterator()
+					: bs(NULL)
+					, pos(0)
+				{}
+
+				// TODO
+		};
 	private:
 		Data data;
 		size_type pos; // bits
 	private:
+
+		/// Extends the container by the specified number of bits.
+		///
+		/// @todo use vector::reserve to avoid too much overhead for potentially large values of 'bits'
 		void extend(size_type bits)
 		{
-			// TODO: using reserve (because of potentially large values of 'bits')
 			while (bits > capacity() - pos) {
 				data.push_back(block_type());
 			}
 		}
 
-		// number of bits must be between 0 and BLOCK_BITS
+		/// Appends the specified block to the data. The bitset is automatically extended
+		/// to hold all the data.
+		///
+		/// @param[in] v The data to append to the bitset.
+		/// @param[in] bits The number of bits to append. This value must be
+		///            between 0 and BLOCK_BITS. If not all bits are being
+		///            appended, only the least significant bits are being taken.
 		void append_block(block_type v, size_type bits = BLOCK_BITS)
 		{
 			if (bits == 0) return;
@@ -43,6 +79,13 @@ class bitset
 			pos += bits;
 		}
 
+		/// Sets the specified block within the bit set. The bitset is automatically
+		/// extended to hold the data.
+		///
+		/// @param[in] v The data to be set.
+		/// @param[in] ofs The offset in bits at which the data has to be written.
+		/// @param[in] bits The number of bits of the data to be written
+		///            If not all bits are being written, only the least significant bits are being taken.
 		void set_block(block_type v, size_type ofs, size_type bits = BLOCK_BITS)
 		{
 			if (bits == 0) return;
@@ -64,7 +107,13 @@ class bitset
 			if (ofs + bits > pos) pos = ofs + bits;
 		}
 
-public:
+		/// Reads a block from the bit set.
+		///
+		/// @param[out] v The container to hold the data.
+		/// @param[in] ofs The offset in bits at which the data has to be read.
+		/// @param[in] bits Number of bits to be read.
+		///            If the number of bits is smaller than what the specified data can
+		///            hold, only the least significant bits are being set.
 		void get_block(block_type & v, size_type ofs, size_type bits = BLOCK_BITS)
 		{
 			if (bits == 0) return;
@@ -87,26 +136,33 @@ public:
 			: pos(0)
 		{}
 
+		/// Returns the capacity of this bit set. Note: not all bits must have
+		/// been occupied.
 		size_type capacity() const
 		{
 			return data.size() * BLOCK_BITS;
 		}
 
+		/// Returns the number of used bits.
 		size_type size() const
 		{
 			return pos;
 		}
 
+		/// Reserves the number of bits within this set.
 		void reserve(size_type bits)
 		{
 			extend(bits);
 		}
 
+		/// Returns the bit at the specified position.
 		bool operator[](size_type i) const
 		{
 			return get_bit(i);
 		}
 
+		/// Returns the bit at the specified position. If the index is larger
+		/// than the actual number of bits, 'false' will rturn.
 		bool get_bit(size_type i) const
 		{
 			if (i > size()) return false;
@@ -114,11 +170,20 @@ public:
 			return (data[i / BLOCK_BITS] >> n_bit) & 1 ? true : false;
 		}
 
-		template <typename T>
-		void append(T v, size_type bits = sizeof(T) * 8)
+		/// Appends the lowest significant bits of the specified data to the
+		/// bit set. The set will be extended if necessary.
+		/// The second parameter specifies the number of bits to be used from
+		/// the given data, beginning at the lowest signnificant bit.
+		/// A size of 0 bits will have no effect.
+		///
+		/// @param[in] v The value to append to the bitset.
+		/// @param[in] bits Number of bits from the specified value. This must not
+		///            exceed the number of bits provided by the specified data,
+		///            padding is not supported.
+		template <typename T> void append(T v, size_type bits = sizeof(T) * BITS_PER_BYTE)
 		{
 			if (bits == 0) return;
-			if (bits > sizeof(v) * 8) return; // TODO: no padding supported
+			if (bits > sizeof(v) * BITS_PER_BYTE) return; // TODO: no padding supported
 			block_type * p = reinterpret_cast<block_type *>(&v);
 			size_type n_bits = bits % BLOCK_BITS; // incomplete blocks
 			if (n_bits != 0) {
@@ -130,11 +195,16 @@ public:
 			}
 		}
 
-		template <typename T>
-		void set(T v, size_type ofs, size_type bits = sizeof(T) * 8)
+		/// Sets bits within the set. The bitset is automatically exteneded to hold the data.
+		///
+		/// @param[in] v The value to set.
+		/// @param[in] ofs The offset (in bits) at which position the value has to be written.
+		/// @paran[in] bits The number of bits to write. This must not exceed the number of bits
+		///            provided by the specified data, padding is not supported.
+		template <typename T> void set(T v, size_type ofs, size_type bits = sizeof(T) * BITS_PER_BYTE)
 		{
 			if (bits == 0) return;
-			if (bits > sizeof(v) * 8) return; // TODO: no padding supported
+			if (bits > sizeof(v) * BITS_PER_BYTE) return; // TODO: no padding supported
 			if (ofs + bits > capacity()) extend(ofs + bits - capacity());
 			block_type * p = reinterpret_cast<block_type *>(&v);
 			size_type n_bits = bits % BLOCK_BITS; // incomplete block
@@ -149,34 +219,75 @@ public:
 			}
 		}
 
-		template <typename T>
-		void get(T & v, size_type ofs, size_type bits = sizeof(T) * 8)
+		/// Reads data from the bit set. There must be enough capacity in either the
+		/// bitset to be read as well as the provided data type to contain the desired
+		/// number of bits.
+		///
+		/// @param[out] v The container to hold the data.
+		/// @param[in] ofs The offset in bits at which position the data is to be read.
+		/// @param[in] bits Number of bits to be read. This must not exceeed the number of
+		///            bits the specified data type can hold.
+		///            If the number of bits is smaller than what the specified data can
+		///            hold, only the least significant bits are being set.
+		template <typename T> void get(T & v, size_type ofs, size_type bits = sizeof(T) * BITS_PER_BYTE)
 		{
 			if (bits == 0) return;
-			if (bits > sizeof(T)) return; // impossible to read more bits than the specified container can hold
-			if (ofs + bits > pos) return; // impossible to ream more than written
+			if (bits > sizeof(T) * BITS_PER_BYTE) return; // impossible to read more bits than the specified container can hold
+			if (ofs + bits > pos) return; // impossible to read more than available
 
-			size_type prefix_v_bits = sizeof(T) * 8 - bits; // bits within v to be left alone
+			v = 0; // clear result
 
 			size_type u_bits = BLOCK_BITS - (ofs % BLOCK_BITS); // number of bits unused within the current block
-			size_type q_bits = BLOCK_BITS - ((ofs + bits) % BLOCK_BITS); // number of bits unused within the last block
+			size_type q_bits = (ofs + bits) % BLOCK_BITS; // number of bits unused within the last block
 
-			// TODO
+			block_type block;
+
+			if (u_bits > 0) {
+				get_block(block, ofs, u_bits);
+				v =+ block;
+				ofs += u_bits;
+				bits -= u_bits;
+			}
+
+			for (; bits > q_bits; bits -= BLOCK_BITS) {
+				get_block(block, ofs);
+				v <<= BLOCK_BITS;
+				v += block;
+				ofs += BLOCK_BITS;
+			}
+
+			if (q_bits > 0) {
+				get_block(block, ofs, q_bits);
+				v <<= q_bits;
+				v += block;
+			}
 		}
 };
+
+template <typename T> static void dump(T v, int b = sizeof(T) * 8)
+{
+	for (int i = b-1; i >= 0; --i) {
+		printf("%d", (v >> i) & 0x1);
+	}
+}
 
 int main(int, char **)
 {
 	bitset s;
 
-	uint8_t v = 0;
+	uint8_t w = 0;
+	uint16_t x = 0;
 
 	s.append(0, 16);
 	s.set(0xff, 3, 8);
+	s.append(0, 8);
+	s.append(0xff, 8);
 
-	s.get_block(v, 6, 5);
+	s.get(w, 6, 5);
+	s.get(x, 10);
 
-	printf("v = %02x\n", v);
+	printf("w =   %02x : ", w); dump(w); printf("\n");
+	printf("x = %04x : ", x); dump(x); printf("\n");
 
 /*
 	s.append(0xff, 8);
