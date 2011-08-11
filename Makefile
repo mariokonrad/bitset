@@ -3,7 +3,7 @@
 .PHONY: all clean
 
 CXX=g++
-CXXFLAGS=-Wall -Wextra -ansi -pedantic -ggdb
+CXXFLAGS=-Wall -Wextra -ansi -pedantic -ggdb -I.
 
 all : bit
 
