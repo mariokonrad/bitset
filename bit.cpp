@@ -10,6 +10,7 @@
 /// @TODO: rework method 'extend'
 /// @TODO: test also for big-endian
 /// @TODO: documentation
+/// @TODO: define as template to support other types for block_type??
 class bitset
 {
 	public:
@@ -20,6 +21,7 @@ class bitset
 		typedef std::vector<block_type> Data;
 	public:
 		typedef Data::size_type size_type;
+		typedef Data::const_iterator data_const_iterator;
 
 		class const_iterator
 		{
@@ -42,16 +44,19 @@ class bitset
 		};
 	private:
 		Data data;
-		size_type pos; // bits
+		size_type pos; // number of bits contained within the set
 	private:
 
 		/// Extends the container by the specified number of bits.
-		///
-		/// @todo use vector::reserve to avoid too much overhead for potentially large values of 'bits'
+		/// Extension is always one block.
 		void extend(size_type bits)
 		{
-			while (bits > capacity() - pos) {
-				data.push_back(block_type());
+			size_type n_blocks = (pos + bits + BLOCK_BITS - 1) / BLOCK_BITS;
+			if (n_blocks > data.capacity()) {
+				data.reserve(n_blocks);
+				while (bits > capacity() - pos) {
+					data.push_back(block_type());
+				}
 			}
 		}
 
@@ -170,6 +175,20 @@ class bitset
 			return (data[i / BLOCK_BITS] >> n_bit) & 1 ? true : false;
 		}
 
+		/// Returns a const iterator to the beginning of the data itself.
+		/// Note: this iterator accesses the data up to capacity(), some bits
+		/// may be unused at the end of the set.
+		data_const_iterator data_begin() const
+		{
+			return data.begin();
+		}
+
+		/// Returns a const iterator to the end of the data itself.
+		data_const_iterator data_end() const
+		{
+			return data.end();
+		}
+
 		/// Appends the lowest significant bits of the specified data to the
 		/// bit set. The set will be extended if necessary.
 		/// The second parameter specifies the number of bits to be used from
@@ -282,6 +301,7 @@ int main(int, char **)
 	s.set(0xff, 3, 8);
 	s.append(0, 8);
 	s.append(0xff, 8);
+	s.append(1, 1);
 
 	s.get(w, 6, 5);
 	s.get(x, 10);
