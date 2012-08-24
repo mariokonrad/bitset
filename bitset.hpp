@@ -284,4 +284,5 @@ template <typename Block, class Container = std::vector<Block> > class bitset
 		}
 };
 
+
 #endif
