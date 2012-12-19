@@ -36,7 +36,7 @@ template <typename Block, class Container = std::vector<Block> > class bitset
 				{}
 			public:
 				const_iterator()
-					: bs(NULL)
+					: bs(0)
 					, pos(0)
 				{}
 
