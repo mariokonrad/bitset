@@ -1,6 +1,9 @@
 #ifndef __BITSET__HPP__
 #define __BITSET__HPP__
 
+/// Copyright (c) 2015 Mario Konrad <mario.konrad@gmx.net>
+/// The code is licensed under the BSD License (see file LICENSE)
+
 #include <vector>
 #include <istream>
 
