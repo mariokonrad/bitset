@@ -42,7 +42,7 @@ int main(int, char **)
 
 	s.set(1, 40, 1);
 */
-	printf("\n %u / %u : ", s.size(), s.capacity());
+	printf("\n %lu / %lu : ", s.size(), s.capacity());
 	for (bitset<uint8_t>::size_type i = 0; i < s.size(); ++i) {
 		if (i % bitset<uint8_t>::BITS_PER_BYTE == 0) printf(" ");
 		printf("%d", s[i] ? 1 : 0);
