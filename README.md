@@ -6,5 +6,5 @@ Bit set operations.
 LICENSE
 =======
 
-See LICENSE.txt
+See LICENSE
 
