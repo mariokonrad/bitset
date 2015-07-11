@@ -209,131 +209,127 @@ TEST_F(Test_utils_bitset, uint8__set_multiple_bits)
 
 TEST_F(Test_utils_bitset, uint8__get_multiple_bits_ending_on_block_boundary)
 {
-	{
-		bitset<uint8_t> bits{64};
-		bits.set(0x7, 5, 3);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000011100000000000000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint8_t> bits{64};
+	bits.set(0x7, 5, 3);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000011100000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 0, 6);
-		EXPECT_EQ(1u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 0, 6);
+	EXPECT_EQ(1u, value);
 }
 
 TEST_F(Test_utils_bitset, uint8__get_multiple_bits_completely_within_block)
 {
-	{
-		bitset<uint8_t> bits{64};
-		bits.set(0xff, 4, 3);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000111000000000000000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint8_t> bits{64};
+	bits.set(0xff, 4, 3);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000111000000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 0, 6);
-		EXPECT_EQ(3u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 0, 6);
+	EXPECT_EQ(3u, value);
 }
 
 TEST_F(Test_utils_bitset, uint8__get_multiple_bits_fractions_of_two_blocks)
 {
-	{
-		bitset<uint8_t> bits{64};
-		bits.set(0xff, 4, 6);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000111111000000000000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint8_t> bits{64};
+	bits.set(0xff, 4, 6);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000111111000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 0, 6);
-		EXPECT_EQ(3u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 0, 6);
+	EXPECT_EQ(3u, value);
 }
 
 TEST_F(Test_utils_bitset, uint8__get_multiple_bits_using_three_blocks)
 {
-	{
-		bitset<uint8_t> bits{64};
-		bits.set(0xffff, 4, 14);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000111111111111110000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint8_t> bits{64};
+	bits.set(0xffff, 4, 14);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000111111111111110000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 2, 6);
-		EXPECT_EQ(15u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 2, 6);
+	EXPECT_EQ(15u, value);
+}
+
+TEST_F(Test_utils_bitset, uint8__set_enum)
+{
+	enum class ids : uint8_t { A = 1, B, C };
+
+	bitset<uint8_t> bits{64};
+	bits.set(ids::A, 4, 6);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000000001000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 }
 
 TEST_F(Test_utils_bitset, uint16__get_multiple_bits_ending_on_block_boundary)
 {
-	{
-		bitset<uint16_t> bits{64};
-		bits.set(0xff, 13, 3);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000000000000111000000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint16_t> bits{64};
+	bits.set(0xff, 13, 3);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000000000000111000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 8, 6);
-		EXPECT_EQ(1u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 8, 6);
+	EXPECT_EQ(1u, value);
 }
 
 TEST_F(Test_utils_bitset, uint16__get_multiple_bits_completely_within_block)
 {
-	{
-		bitset<uint16_t> bits{64};
-		bits.set(0x7, 4, 3);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000111000000000000000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint16_t> bits{64};
+	bits.set(0x7, 4, 3);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000111000000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 0, 6);
-		EXPECT_EQ(3u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 0, 6);
+	EXPECT_EQ(3u, value);
 }
 
 TEST_F(Test_utils_bitset, uint16__get_multiple_bits_fractions_of_two_blocks)
 {
-	{
-		bitset<uint16_t> bits{64};
-		bits.set(0xffff, 4, 6);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000111111000000000000000000000000000000000000000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint16_t> bits{64};
+	bits.set(0xffff, 4, 6);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000111111000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 0, 6);
-		EXPECT_EQ(3u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 0, 6);
+	EXPECT_EQ(3u, value);
 }
 
 TEST_F(Test_utils_bitset, uint16__get_multiple_bits_using_three_blocks)
 {
-	{
-		bitset<uint16_t> bits{64};
-		uint64_t val = -1;
-		bits.set(val, 4, 40);
-		//            0       8       16      24      32      40      48      56
-		//            +-------+-------+-------+-------+-------+-------+-------+-------
-		ASSERT_STREQ("0000111111111111111111111111111111111111111100000000000000000000",
-			to_string(bits).c_str());
+	bitset<uint16_t> bits{64};
+	uint64_t val = -1;
+	bits.set(val, 4, 40);
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000111111111111111111111111111111111111111100000000000000000000",
+		to_string(bits).c_str());
 
-		uint32_t value = 0xffffffff;
-		bits.get(value, 2, 6);
-		EXPECT_EQ(15u, value);
-	}
+	uint32_t value = 0xffffffff;
+	bits.get(value, 2, 6);
+	EXPECT_EQ(15u, value);
 }
 }
 
