@@ -331,5 +331,86 @@ TEST_F(Test_utils_bitset, uint16__get_multiple_bits_using_three_blocks)
 	bits.get(value, 2, 6);
 	EXPECT_EQ(15u, value);
 }
+
+TEST_F(Test_utils_bitset, uint8__copy_constructor)
+{
+	bitset<uint8_t> bits{32};
+	bits.set(1, 0, 6);
+
+	bitset<uint8_t> copy(bits);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+
+	ASSERT_STREQ("00000100000000000000000000000000", to_string(bits).c_str());
+	EXPECT_STREQ("00000100000000000000000000000000", to_string(copy).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__assignment)
+{
+	bitset<uint8_t> bits{32};
+	bits.set(1, 0, 6);
+
+	bitset<uint8_t> copy{16};
+	ASSERT_STREQ("0000000000000000", to_string(copy).c_str());
+	copy = bits;
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+
+	ASSERT_STREQ("00000100000000000000000000000000", to_string(bits).c_str());
+	EXPECT_STREQ("00000100000000000000000000000000", to_string(copy).c_str());
+}
+
+template <class T>
+bitset<uint8_t> get_test_data(unsigned int size)
+{
+	bitset<T> result{size};
+
+	result.set(1, 0, 6);
+
+	return result;
+}
+
+TEST_F(Test_utils_bitset, uint8__as_return_value_small)
+{
+	auto bits = get_test_data<uint8_t>(32);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+
+	ASSERT_STREQ("00000100000000000000000000000000", to_string(bits).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__as_return_value_medium)
+{
+	auto bits = get_test_data<uint8_t>(168);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+
+	ASSERT_STREQ("000001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000", to_string(bits).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__set_multiple_values)
+{
+	bitset<uint8_t> bits{64};
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000000000000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
+
+	bits.set(1, 0, 6);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000010000000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
+
+	bits.set(1, 6, 2);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	ASSERT_STREQ("0000010100000000000000000000000000000000000000000000000000000000",
+		to_string(bits).c_str());
+}
+
 }
 

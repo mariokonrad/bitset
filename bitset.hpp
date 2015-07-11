@@ -283,7 +283,7 @@ private:
 			mask0 |= ~mask1;
 			v <<= u_bits - bits;
 			v &= ~mask0;
-			data[i] = (data[i] & ~mask0) | v;
+			data[i] = (data[i] & mask0) | v;
 		} else {
 			// not enough room, split value to current and next block
 			block_type mask0 = ~((1 << (bits - u_bits)) - 1);
@@ -309,7 +309,7 @@ private:
 		// fraction of the first block
 		size_type u_bits = BITS_PER_BLOCK - (ofs % BITS_PER_BLOCK); // part of the first block
 		if (u_bits > 0) {
-			if (bits < u_bits) {
+			if (bits <= u_bits) {
 				set_block(v, ofs, bits);
 				ofs += bits;
 				bits = 0;
@@ -376,6 +376,11 @@ private:
 	}
 
 public:
+	bitset(const bitset &) = default;
+	bitset(bitset &&) = default;
+
+	bitset & operator=(const bitset &) = default;
+
 	bitset()
 		: pos(0)
 	{
