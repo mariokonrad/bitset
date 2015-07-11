@@ -1,11 +1,12 @@
-#ifndef __BITSET__HPP__
-#define __BITSET__HPP__
-
-/// Copyright (c) 2015 Mario Konrad <mario.konrad@gmx.net>
-/// The code is licensed under the BSD License (see file LICENSE)
+#ifndef __MK__BITSET__HPP__
+#define __MK__BITSET__HPP__
 
 #include <vector>
+#include <type_traits>
 #include <istream>
+
+namespace mk
+{
 
 /// This is a dynamically growing bitset (theoretically of arbitrary size).
 ///
@@ -40,11 +41,8 @@
 /// bits.set(1, 512, 1); // set one bit to 1 at offset 512
 /// @endcode
 ///
-/// **Example:** iterate through bits (see examples/bitset_iterate.cpp)
-/// @includelineno examples/bitset_iterate.cpp
-///
-/// @todo support for iterator
-/// @todo test also for big-endian
+/// @todo support for const_iterator (partially prepared)
+/// @todo implement also for big-endian
 /// @todo padding for 'append' and 'set'
 /// @todo really ignoring the failure of 'set', 'append' and 'get'?
 /// @todo documentation
@@ -317,6 +315,38 @@ private:
 		}
 	}
 
+	template <typename T>
+	void set_impl(T v, size_type ofs, size_type bits = sizeof(T) * BITS_PER_BYTE)
+	{
+		if (bits <= 0)
+			return;
+		if (bits > sizeof(v) * BITS_PER_BYTE)
+			return; // TODO: no padding supported
+		if (ofs + bits > capacity())
+			extend(ofs + bits - capacity());
+		size_type n_bits = bits % BITS_PER_BLOCK; // incomplete block
+		if (n_bits != 0) {
+			set_block(v >> (bits - n_bits), ofs, n_bits);
+			ofs += n_bits;
+			bits -= n_bits;
+		}
+		for (; bits > 0; bits -= BITS_PER_BLOCK, ofs += BITS_PER_BLOCK) {
+			set_block(v >> (bits - BITS_PER_BLOCK), ofs);
+		}
+	}
+
+	template <typename T>
+	void set_dispatch(T v, size_type ofs, size_type bits, std::true_type)
+	{
+		set_impl(v, ofs, bits);
+	}
+
+	template <typename T>
+	void set_dispatch(T v, size_type ofs, size_type bits, std::false_type)
+	{
+		set_impl(static_cast<typename std::underlying_type<T>::type>(v), ofs, bits);
+	}
+
 public:
 	bitset()
 		: pos(0)
@@ -400,6 +430,7 @@ public:
 	/// @todo Implementation
 	void append(const bitset & bs)
 	{
+		(void)bs; // unused
 	}
 
 	/// Sets the specified bitset at the offset within this bitset.
@@ -411,6 +442,8 @@ public:
 	/// @todo Implementation
 	void set(const bitset & bs, size_type ofs)
 	{
+		(void)bs; // unused
+		(void)ofs; // unused
 	}
 
 	/// @todo documentation
@@ -442,14 +475,13 @@ public:
 			return;
 		if (bits > sizeof(v) * BITS_PER_BYTE)
 			return; // TODO: no padding supported
-		block_type * p = reinterpret_cast<block_type *>(&v);
 		size_type n_bits = bits % BITS_PER_BLOCK; // incomplete blocks
 		if (n_bits != 0) {
-			append_block(*p, n_bits);
+			append_block(v >> (bits - n_bits), n_bits);
 			bits -= n_bits;
 		}
-		for (; bits > 0; bits -= BITS_PER_BLOCK, ++p) {
-			append_block(*p);
+		for (; bits > 0; bits -= BITS_PER_BLOCK) {
+			append_block(v >> (bits - BITS_PER_BLOCK));
 		}
 	}
 
@@ -462,23 +494,7 @@ public:
 	template <typename T>
 	void set(T v, size_type ofs, size_type bits = sizeof(T) * BITS_PER_BYTE)
 	{
-		if (bits <= 0)
-			return;
-		if (bits > sizeof(v) * BITS_PER_BYTE)
-			return; // TODO: no padding supported
-		if (ofs + bits > capacity())
-			extend(ofs + bits - capacity());
-		block_type * p = reinterpret_cast<block_type *>(&v);
-		size_type n_bits = bits % BITS_PER_BLOCK; // incomplete block
-		if (n_bits != 0) {
-			set_block(*p, ofs, n_bits);
-			ofs += n_bits;
-			bits -= n_bits;
-		}
-		for (; bits > 0; bits -= BITS_PER_BLOCK, ++p) {
-			set_block(*p, ofs);
-			ofs += BITS_PER_BLOCK;
-		}
+		set_dispatch(v, ofs, bits, std::is_integral<T>{});
 	}
 
 	/// Reads data from the bit set. There must be enough capacity in either the
@@ -516,8 +532,8 @@ public:
 				block >>= (u_bits - bits);
 				bits = 0;
 			} else {
-			bits -= u_bits;
-		}
+				bits -= u_bits;
+			}
 			value = +block;
 			ofs += u_bits;
 		}
@@ -552,5 +568,6 @@ public:
 		value = get<T>(ofs, bits);
 	}
 };
+}
 
 #endif

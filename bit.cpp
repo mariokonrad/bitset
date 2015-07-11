@@ -1,8 +1,10 @@
 // bit.cpp
 
-#include <bitset.hpp>
+#include "bitset.hpp"
 #include <stdint.h>
 #include <cstdio>
+
+using namespace mk;
 
 template <typename T> static void dump(T v, int b = sizeof(T) * 8)
 {
