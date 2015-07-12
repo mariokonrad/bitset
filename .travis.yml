@@ -1,0 +1,25 @@
+language: c++
+compiler:
+  - gcc
+  - clang
+sudo: false
+os: linux
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise # latest
+    packages:
+    - gcc-4.9
+    - g++-4.9
+    - clang-3.7
+
+install:
+  - if [ "$CXX" = "g++" ] ; then export CXX="g++-4.9" CC="gcc-4.9" ; fi
+  - if [ "$CXX" = "clang++" ] ; then export CXX="clang++-3.7" CC="clang-3.7" ; fi
+
+script:
+  - make
+  - ./test
+

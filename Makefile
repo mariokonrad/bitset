@@ -2,7 +2,6 @@
 
 .PHONY: all clean
 
-CXX=g++
 CXXFLAGS=-O0 -Wall -Wextra -std=c++11 -pedantic -ggdb -I. -Igmock-1.7.0
 
 all : bit test
