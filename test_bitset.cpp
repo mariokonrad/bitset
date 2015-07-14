@@ -527,5 +527,121 @@ TEST_F(Test_utils_bitset, uint8__set_bitset_to_nonempty_bitset)
 	EXPECT_STREQ("01010101", to_string(b1).c_str());
 }
 
+TEST_F(Test_utils_bitset, uint8__set_bit)
+{
+	bitset<uint8_t> b{8};
+
+	EXPECT_STREQ("00000000", to_string(b).c_str());
+	b.set_bit(0, true);
+	EXPECT_STREQ("10000000", to_string(b).c_str());
+	b.set_bit(7, true);
+	EXPECT_STREQ("10000001", to_string(b).c_str());
+	b.set_bit(0, false);
+	EXPECT_STREQ("00000001", to_string(b).c_str());
+	b.set_bit(7, false);
+	EXPECT_STREQ("00000000", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__reset_all)
+{
+	bitset<uint8_t> b{8};
+	b.set(0xaa, 0, 8);
+
+	EXPECT_STREQ("10101010", to_string(b).c_str());
+	b.reset();
+	EXPECT_STREQ("00000000", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__all)
+{
+	{
+		bitset<uint8_t> b{8};
+		EXPECT_FALSE(b.all());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xaa, 0, 8);
+		EXPECT_FALSE(b.all());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(1, 0, 8);
+		EXPECT_FALSE(b.all());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xff, 0, 8);
+		EXPECT_TRUE(b.all());
+	}
+}
+
+TEST_F(Test_utils_bitset, uint8__any)
+{
+	{
+		bitset<uint8_t> b{8};
+		EXPECT_FALSE(b.any());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xaa, 0, 8);
+		EXPECT_TRUE(b.any());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(1, 0, 8);
+		EXPECT_TRUE(b.any());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xff, 0, 8);
+		EXPECT_TRUE(b.any());
+	}
+}
+
+TEST_F(Test_utils_bitset, uint8__none)
+{
+	{
+		bitset<uint8_t> b{8};
+		EXPECT_TRUE(b.none());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xaa, 0, 8);
+		EXPECT_FALSE(b.none());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(1, 0, 8);
+		EXPECT_FALSE(b.none());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xff, 0, 8);
+		EXPECT_FALSE(b.none());
+	}
+}
+
+TEST_F(Test_utils_bitset, uint8__count)
+{
+	{
+		bitset<uint8_t> b{8};
+		EXPECT_EQ(0u, b.count());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xaa, 0, 8);
+		EXPECT_EQ(4u, b.count());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(1, 0, 8);
+		EXPECT_EQ(1u, b.count());
+	}
+	{
+		bitset<uint8_t> b{8};
+		b.set(0xff, 0, 8);
+		EXPECT_EQ(8u, b.count());
+	}
+}
 }
 

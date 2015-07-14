@@ -1,3 +1,6 @@
 bit
 *.o
 test
+gmon.out
+prof
+*.gcda
