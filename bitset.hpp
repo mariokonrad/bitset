@@ -47,7 +47,6 @@ namespace mk
 /// @endcode
 ///
 /// @todo support for const_iterator (partially prepared)
-/// @todo padding for 'append' and 'set'
 /// @todo documentation
 /// @todo improve effiency
 /// @todo improve std algorithm compatibility
@@ -301,7 +300,7 @@ private:
 		if (bits <= 0)
 			return;
 		if (bits > sizeof(v) * BITS_PER_BYTE)
-			throw std::invalid_argument{"padding not implemented"};
+			throw std::invalid_argument{"number of bit exceed number of available bits"};
 		if (ofs + bits > capacity())
 			extend(ofs + bits - capacity());
 
@@ -541,7 +540,7 @@ public:
 		if (bits <= 0)
 			return;
 		if (bits > sizeof(v) * BITS_PER_BYTE)
-			throw std::invalid_argument{"padding not implemented"};
+			throw std::invalid_argument{"number of bits exceed number of available bits"};
 		size_type n_bits = bits % BITS_PER_BLOCK; // incomplete blocks
 		if (n_bits != 0) {
 			append_block(v >> (bits - n_bits), n_bits);
@@ -591,7 +590,7 @@ public:
 		if (bits <= 0)
 			return T{};
 		if (bits > sizeof(T) * BITS_PER_BYTE)
-			throw std::invalid_argument{"padding not implemented"};
+			throw std::invalid_argument{"number of bits exceed number of available bits"};
 		if (ofs + bits > pos)
 			throw std::out_of_range{"offset and bits exceed available number of bits"};
 
