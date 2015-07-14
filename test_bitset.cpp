@@ -441,5 +441,91 @@ TEST_F(Test_utils_bitset, uint8__flip)
 
 }
 
+TEST_F(Test_utils_bitset, uint8__append_bitset_to_empty_bitset)
+{
+	bitset<uint8_t> b0;
+	bitset<uint8_t> b1;
+
+	b0.append(0x55, 8);
+	b1.append(b0);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+
+	EXPECT_STREQ("01010101", to_string(b0).c_str());
+	EXPECT_STREQ("01010101", to_string(b1).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__append_bitset_to_nonempty_bitset)
+{
+	bitset<uint8_t> b0;
+	bitset<uint8_t> b1;
+
+	b0.append(0x55, 8);
+	b1.append(0xaa, 8);
+	b1.append(b0);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+
+	EXPECT_STREQ("01010101", to_string(b0).c_str());
+	EXPECT_STREQ("1010101001010101", to_string(b1).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__set_bitset_to_empty_bitset)
+{
+	bitset<uint8_t> b0;
+	bitset<uint8_t> b1;
+
+	b0.append(0x55, 8);
+	b1.set(b0, 0);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+
+	EXPECT_STREQ("01010101", to_string(b0).c_str());
+	EXPECT_STREQ("01010101", to_string(b1).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__set_bitset_to_empty_bitset_mixed_type_bitsets_8_to_16)
+{
+	bitset<uint8_t> b0;
+	bitset<uint16_t> b1;
+
+	b0.append(0x55, 8);
+	b1.set(b0, 0);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+
+	EXPECT_STREQ("01010101", to_string(b0).c_str());
+	EXPECT_STREQ("01010101", to_string(b1).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__set_bitset_to_empty_bitset_mixed_type_bitsets_16_to_8)
+{
+	bitset<uint16_t> b0;
+	bitset<uint8_t> b1;
+
+	b0.append(0x55, 8);
+	b1.set(b0, 0);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+
+	EXPECT_STREQ("01010101", to_string(b0).c_str());
+	EXPECT_STREQ("01010101", to_string(b1).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__set_bitset_to_nonempty_bitset)
+{
+	bitset<uint8_t> b0;
+	bitset<uint8_t> b1;
+
+	b0.append(0x55, 8);
+	b1.append(0xaa, 8);
+	b1.set(b0, 0);
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+
+	EXPECT_STREQ("01010101", to_string(b0).c_str());
+	EXPECT_STREQ("01010101", to_string(b1).c_str());
+}
+
 }
 

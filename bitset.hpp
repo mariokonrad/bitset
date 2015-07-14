@@ -49,6 +49,8 @@ namespace mk
 /// @todo support for const_iterator (partially prepared)
 /// @todo padding for 'append' and 'set'
 /// @todo documentation
+/// @todo improve effiency
+/// @todo improve std algorithm compatibility
 template <class Block, class Container = std::vector<Block>,
 	class = typename std::enable_if<!std::numeric_limits<Block>::is_signed>::type>
 class bitset
@@ -473,10 +475,15 @@ public:
 	///
 	/// @param[in] bs The bitset to be appended to this one.
 	///
-	/// @todo Implementation
-	void append(const bitset & bs)
+	/// @note It is not allowed to append a bitself to itself.
+	/// @note This algorithm is not efficient.
+	template <class U>
+	void append(const bitset<U> & bs)
 	{
-		(void)bs; // unused
+		if (reinterpret_cast<const void *>(this) == reinterpret_cast<const void *>(&bs))
+			return;
+		for (const auto & bit : bs)
+			append(bit, 1);
 	}
 
 	/// Sets the specified bitset at the offset within this bitset.
@@ -485,11 +492,17 @@ public:
 	/// @param[in] ofs The offset within the bitset to copy the bitset
 	///            to. The entire specified bitset will be set.
 	///
-	/// @todo Implementation
-	void set(const bitset & bs, size_type ofs)
+	/// @note It is not allowed to set a bitself to itself.
+	/// @note This algorithm is not efficient.
+	template <class U>
+	void set(const bitset<U> & bs, size_type ofs)
 	{
-		(void)bs; // unused
-		(void)ofs; // unused
+		if (reinterpret_cast<const void *>(this) == reinterpret_cast<const void *>(&bs))
+			return;
+		for (const auto & bit : bs) {
+			set(bit, ofs, 1);
+			++ofs;
+		}
 	}
 
 	/// Reads blocks from the stream and appends them to the bitset.
