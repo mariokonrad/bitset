@@ -16,7 +16,10 @@ template <typename T> static void dump(T v, int b = sizeof(T) * 8)
 
 int main(int, char **)
 {
-	bitset<uint8_t> s;
+	using bs = bitset<uint8_t>;
+	bs s;
+
+	printf("bits per block: %u\n", bs::BITS_PER_BLOCK);
 
 	uint8_t w = 0;
 	uint16_t x = 0;
@@ -45,8 +48,8 @@ int main(int, char **)
 	s.set(1, 40, 1);
 */
 	printf("\n %lu / %lu : ", s.size(), s.capacity());
-	for (bitset<uint8_t>::size_type i = 0; i < s.size(); ++i) {
-		if (i % bitset<uint8_t>::BITS_PER_BYTE == 0) printf(" ");
+	for (bs::size_type i = 0; i < s.size(); ++i) {
+		if (i % bs::BITS_PER_BYTE == 0) printf(" ");
 		printf("%d", s[i] ? 1 : 0);
 	}
 	printf("\n");

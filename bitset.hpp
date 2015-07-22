@@ -662,12 +662,17 @@ public:
 			ofs += u_bits;
 		}
 
-		// all complete blocks inbetween
-		for (; bits >= BITS_PER_BLOCK; bits -= BITS_PER_BLOCK) {
-			get_block(block, ofs);
-			value <<= BITS_PER_BLOCK;
-			value += block;
-			ofs += BITS_PER_BLOCK;
+		// all complete blocks inbetween, only possible if sizeof(T) exceeds
+		// the block size (mupltiple blocks in one T).
+		// since this check is possible at compile time, modern compilers
+		// probably will eliminated it completely.
+		if (sizeof(T) * BITS_PER_BYTE > BITS_PER_BLOCK) {
+			for (; bits >= BITS_PER_BLOCK; bits -= BITS_PER_BLOCK) {
+				get_block(block, ofs);
+				value <<= BITS_PER_BLOCK;
+				value += block;
+				ofs += BITS_PER_BLOCK;
+			}
 		}
 
 		// fraction of the last block
