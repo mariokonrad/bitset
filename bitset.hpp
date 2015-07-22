@@ -270,12 +270,14 @@ private:
 	/// @param[in] bits The number of bits of the data to be written
 	///            If not all bits are being written, only the least significant bits are being
 	///            taken.
+	/// @note This function does not extend the data container. It is assumed, that
+	///       this function runs in the context of another, which takes care of the
+	///       container (e.g. set_impl). This behaviour is intentional, because
+	///       this function runs potentially often, and therefore it is desired to
+	///       avoid additional runtime checks which can easily be done in the calling
+	///       environment.
 	void set_block(block_type v, size_type ofs, size_type bits = BITS_PER_BLOCK)
 	{
-		if (bits <= 0)
-			return;
-		if (ofs + bits > capacity())
-			extend(ofs + bits - capacity());
 		size_type i = ofs / BITS_PER_BLOCK; // index of current block
 
 		// number of bits unused within the current block
