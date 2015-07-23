@@ -16,9 +16,9 @@ Status
 Build
 =====
 
-Build with gcc:
+The source is completely as header file. If you like to build examples
+and unit tests:
 ~~~~~~~~~~
-	g++ -o ihex ihex.cpp -Wall -Wextra -pedantic -O2 --std=c++11
-	strip -s ihex
+	make
 ~~~~~~~~~~
 
