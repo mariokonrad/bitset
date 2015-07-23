@@ -1,10 +1,13 @@
 # Makefile
 
-.PHONY: all clean
+.PHONY: all clean unittest
 
 CXXFLAGS=-O0 -Wall -Wextra -std=c++11 -pedantic -ggdb -I. -Igmock-1.7.0
 
 all : bit test prof
+
+unittest : test
+	./test
 
 bit : bit.o
 	$(CXX) -o $@ $^

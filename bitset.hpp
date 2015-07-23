@@ -392,21 +392,28 @@ private:
 	}
 
 public:
-
 	// ---- constructors
 
+	/// Copy constructor
 	bitset(const bitset &) = default;
+
+	/// Move constructor.
 	bitset(bitset &&) = default;
 
+	/// Copy assignment
 	bitset & operator=(const bitset &) = default;
+
+	/// Move assignment
 	bitset & operator=(bitset &&) = default;
 
+	/// Default construction
 	bitset()
 		: pos(0)
 	{
 	}
 
-	/// Initializes the bitset with the specified amount of bits.
+	/// Construction with number of bits present (and usable) in the bitset.
+	/// All bits are initialized to the default constructed Block type..
 	///
 	/// @param[in] bits Number of bits (default initialized to 0) in the bitset.
 	bitset(size_type bits)
@@ -416,14 +423,20 @@ public:
 		pos = bits;
 	}
 
-	/// Initializes the bitset with some content. The data within
-	/// the bitset will be a copy of the specified data.
+	/// Construction with content from a specified container.
 	///
 	/// @param[in] begin Start position of the data (inclusive)
 	/// @param[in] end End position of the data (exclusive)
 	bitset(typename Container::const_iterator begin, typename Container::const_iterator end)
 		: pos((end - begin) * BITS_PER_BLOCK)
 		, data(begin, end)
+	{
+	}
+
+	/// Construction with move of the container, this does not copy any data.
+	bitset(Container && container)
+		: pos(container.size() * BITS_PER_BLOCK)
+		, data(std::move(container))
 	{
 	}
 
@@ -562,7 +575,7 @@ public:
 	}
 
 	/// Resets the bit at the speficied index.
-	void reset(size_type index) throw (std::out_of_range)
+	void reset(size_type index) throw(std::out_of_range)
 	{
 		if (index >= size())
 			throw std::out_of_range{"index out of range in reset(index)"};
@@ -612,10 +625,7 @@ public:
 	}
 
 	/// Simply an other name for get_bit.
-	bool test(size_type i) const throw(std::out_of_range)
-	{
-		return get_bit(i);
-	}
+	bool test(size_type i) const throw(std::out_of_range) { return get_bit(i); }
 
 	/// Reads data from the bit set. There must be enough capacity in either the
 	/// bitset to be read as well as the provided data type to contain the desired
@@ -707,6 +717,12 @@ public:
 
 	/// Returns the bit at the specified position.
 	bool operator[](size_type i) const throw(std::out_of_range) { return get_bit(i); }
+
+	/// Comparison operator for the same bitset type.
+	bool operator==(const bitset & other) const { return this == &other || data == other.data; }
+
+	/// Comparison operator for the same bitset type.
+	bool operator!=(const bitset & other) const { return !(*this == other); }
 
 	// ---- other
 

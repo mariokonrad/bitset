@@ -19,6 +19,36 @@ public:
 	}
 };
 
+TEST_F(Test_utils_bitset, uint8__construction_bit_size)
+{
+	bitset<uint8_t> b{16};
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	EXPECT_STREQ("0000000000000000", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__construction_container_iterator)
+{
+	using namespace std;
+
+	vector<uint8_t> v{0xaa, 0x55};
+	bitset<uint8_t> b(begin(v), end(v));
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	EXPECT_STREQ("1010101001010101", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__construction_container_move)
+{
+	bitset<uint8_t> b(std::vector<uint8_t>{0xaa, 0x55});
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	EXPECT_STREQ("1010101001010101", to_string(b).c_str());
+}
+
 TEST_F(Test_utils_bitset, uint8__append_single_bits)
 {
 	{
@@ -643,5 +673,52 @@ TEST_F(Test_utils_bitset, uint8__count)
 		EXPECT_EQ(8u, b.count());
 	}
 }
+
+TEST_F(Test_utils_bitset, uint8__comparison_equal)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0x55, 8);
+
+	EXPECT_TRUE(a == a);
+	EXPECT_TRUE(b == b);
+	EXPECT_TRUE(c == c);
+
+	EXPECT_TRUE(a == b);
+	EXPECT_TRUE(b == a);
+
+	EXPECT_FALSE(a == c);
+	EXPECT_FALSE(c == a);
+	EXPECT_FALSE(b == c);
+	EXPECT_FALSE(c == b);
+}
+
+TEST_F(Test_utils_bitset, uint8__comparison_not_equal)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0x55, 8);
+
+	EXPECT_FALSE(a != a);
+	EXPECT_FALSE(b != b);
+	EXPECT_FALSE(c != c);
+
+	EXPECT_FALSE(a != b);
+	EXPECT_FALSE(b != a);
+
+	EXPECT_TRUE(a != c);
+	EXPECT_TRUE(c != a);
+	EXPECT_TRUE(b != c);
+	EXPECT_TRUE(c != b);
+}
+
 }
 
