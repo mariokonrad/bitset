@@ -615,7 +615,7 @@ public:
 
 		// bit within the block to be read
 		size_type n_bit = BITS_PER_BLOCK - (i % BITS_PER_BLOCK) - 1;
-		return (data[i / BITS_PER_BLOCK] >> n_bit) & 1 ? true : false;
+		return ((data[i / BITS_PER_BLOCK] >> n_bit) & 1) ? true : false;
 	}
 
 	/// Simply an other name for get_bit.
