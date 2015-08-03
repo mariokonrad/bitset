@@ -410,7 +410,7 @@ public:
 	/// All bits are initialized to the default constructed Block type..
 	///
 	/// @param[in] bits Number of bits (default initialized to 0) in the bitset.
-	bitset(size_type bits)
+	explicit bitset(size_type bits)
 		: pos(0)
 	{
 		extend(bits);
