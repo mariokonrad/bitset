@@ -9,7 +9,7 @@ using namespace mk;
 template <typename T> static void dump(T v, int b = sizeof(T) * 8)
 {
 	for (int i = 0; i < b; ++i) {
-		if (i % bitset<T>::BITS_PER_BYTE == 0) printf(" ");
+		if (i % bitset<T>::bits_per_byte == 0) printf(" ");
 		printf("%d", (v >> (b - i - 1)) & 0x1);
 	}
 }
@@ -19,7 +19,7 @@ int main(int, char **)
 	using bs = bitset<uint8_t>;
 	bs s;
 
-	printf("bits per block: %u\n", bs::BITS_PER_BLOCK);
+	printf("bits per block: %u\n", bs::bits_per_block);
 
 	uint8_t w = 0;
 	uint16_t x = 0;
@@ -49,7 +49,7 @@ int main(int, char **)
 */
 	printf("\n %lu / %lu : ", s.size(), s.capacity());
 	for (bs::size_type i = 0; i < s.size(); ++i) {
-		if (i % bs::BITS_PER_BYTE == 0) printf(" ");
+		if (i % bs::bits_per_byte == 0) printf(" ");
 		printf("%d", s[i] ? 1 : 0);
 	}
 	printf("\n");
