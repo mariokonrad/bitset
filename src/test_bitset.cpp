@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "bitset.hpp"
+#include "bitset_string.hpp"
 
 namespace
 {
@@ -8,16 +9,41 @@ using namespace mk;
 
 class Test_utils_bitset : public ::testing::Test
 {
-public:
-	template <class T> std::string to_string(const bitset<T> & bits)
-	{
-		std::string result;
-		result.reserve(bits.size());
-		for (auto const & b : bits)
-			result += '0' + b;
-		return result;
-	}
 };
+
+TEST_F(Test_utils_bitset, to_string)
+{
+	EXPECT_STREQ("0000", to_string(bitset<uint8_t>{4}).c_str());
+	EXPECT_STREQ("00000000", to_string(bitset<uint8_t>{8}).c_str());
+	EXPECT_STREQ("0000000000000", to_string(bitset<uint8_t>{13}).c_str());
+	EXPECT_STREQ("0000000000000000", to_string(bitset<uint8_t>{16}).c_str());
+	EXPECT_STREQ("00000000000000000000000000000000", to_string(bitset<uint8_t>{32}).c_str());
+}
+
+TEST_F(Test_utils_bitset, to_string_pack)
+{
+	EXPECT_STREQ("00000000", to_string(bitset<uint8_t>{8}, 0).c_str());
+	EXPECT_STREQ("0 0 0 0 0 0 0 0", to_string(bitset<uint8_t>{8}, 1).c_str());
+	EXPECT_STREQ("00 00 00 00", to_string(bitset<uint8_t>{8}, 2).c_str());
+	EXPECT_STREQ("000 000 00", to_string(bitset<uint8_t>{8}, 3).c_str());
+	EXPECT_STREQ("0000 0000", to_string(bitset<uint8_t>{8}, 4).c_str());
+	EXPECT_STREQ("00000 000", to_string(bitset<uint8_t>{8}, 5).c_str());
+	EXPECT_STREQ("000000 00", to_string(bitset<uint8_t>{8}, 6).c_str());
+	EXPECT_STREQ("0000000 0", to_string(bitset<uint8_t>{8}, 7).c_str());
+	EXPECT_STREQ("00000000", to_string(bitset<uint8_t>{8}, 8).c_str());
+	EXPECT_STREQ("00000000", to_string(bitset<uint8_t>{8}, 9).c_str());
+
+	EXPECT_STREQ("0000 0000 0000", to_string(bitset<uint8_t>{12}, 4).c_str());
+	EXPECT_STREQ("0000 0000 0000 0000", to_string(bitset<uint8_t>{16}, 4).c_str());
+	EXPECT_STREQ("0000 0000 0000 0000 0000", to_string(bitset<uint8_t>{20}, 4).c_str());
+	EXPECT_STREQ("0000 0000 0000 0000 0000 0000", to_string(bitset<uint8_t>{24}, 4).c_str());
+
+	EXPECT_STREQ("000000000000", to_string(bitset<uint8_t>{12}, 0, ':').c_str());
+	EXPECT_STREQ("0000:0000:0000", to_string(bitset<uint8_t>{12}, 4, ':').c_str());
+	EXPECT_STREQ("0000:0000:0000:0000", to_string(bitset<uint8_t>{16}, 4, ':').c_str());
+	EXPECT_STREQ("0000:0000:0000:0000:0000", to_string(bitset<uint8_t>{20}, 4, ':').c_str());
+	EXPECT_STREQ("0000:0000:0000:0000:0000:0000", to_string(bitset<uint8_t>{24}, 4, ':').c_str());
+}
 
 TEST_F(Test_utils_bitset, uint8__construction_bit_size)
 {
@@ -793,6 +819,4 @@ TEST_F(Test_utils_bitset, uint8__set_bit_out_of_range)
 
 	EXPECT_ANY_THROW(b.set_bit(64, 1));
 }
-
 }
-

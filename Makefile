@@ -24,7 +24,7 @@ src/bit.o : src/bit.cpp src/bitset.hpp
 testrunner : gmock-1.7.0/custom_main.o gmock-1.7.0/gmock-gtest-all.o src/test_bitset.o
 	$(CXX) -o $@ $^ -pthread --coverage
 
-src/test_bitset.o : src/test_bitset.cpp src/bitset.hpp
+src/test_bitset.o : src/test_bitset.cpp src/bitset.hpp src/bitset_string.hpp
 	$(CXX) -o $@ -c src/test_bitset.cpp $(CXXFLAGS) --coverage
 
 gmock-1.7.0/custom_main.o : gmock-1.7.0/custom_main.cpp
