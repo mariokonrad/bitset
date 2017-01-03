@@ -378,8 +378,7 @@ private:
 		}
 	}
 
-public:
-	// ---- constructors
+public: // constructors
 
 	/// Copy constructor
 	bitset(const bitset &) = default;
@@ -427,7 +426,7 @@ public:
 	{
 	}
 
-	// ---- container operations
+public: // container operations
 
 	/// Returns the capacity of this bit set. Note: not all bits must have
 	/// been occupied.
@@ -448,7 +447,7 @@ public:
 		pos = 0;
 	}
 
-	// ---- iterators
+public: // iterators
 
 	/// Returns a const iterator to the beginning of the data itself.
 	/// Note: this iterator accesses the data up to capacity(), some bits
@@ -462,7 +461,7 @@ public:
 
 	const_iterator end() const { return const_iterator(this, size()); }
 
-	// ---- append
+public: // append
 
 	/// Appends another bitset to this one.
 	///
@@ -524,7 +523,7 @@ public:
 		}
 	}
 
-	// ---- set
+public: // set
 
 	/// Sets the specified bitset at the offset within this bitset.
 	///
@@ -593,7 +592,7 @@ public:
 		}
 	}
 
-	// ---- get
+public: // get
 
 	/// Returns the bit at the specified position. If the index is larger
 	/// than the actual number of bits, 'false' will rturn.
@@ -700,10 +699,12 @@ public:
 
 	bool get(size_type index) const { return get<bool>(index, 1); }
 
-	// ---- operators
+public: // access operators
 
 	/// Returns the bit at the specified position.
 	bool operator[](size_type i) const { return get_bit(i); }
+
+public: // comparison operators
 
 	/// Comparison operator for the same bitset type.
 	bool operator==(const bitset & other) const { return this == &other || data == other.data; }
@@ -711,7 +712,7 @@ public:
 	/// Comparison operator for the same bitset type.
 	bool operator!=(const bitset & other) const { return !(*this == other); }
 
-	// ---- other
+public: // other
 
 	/// Flips the bit at the specified index.
 	///

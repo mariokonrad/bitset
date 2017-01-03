@@ -2,6 +2,7 @@
 
 .PHONY: all clean unittest coverage
 
+CXX=g++-6
 CXXFLAGS=-O0 -Wall -Wextra -std=c++11 -pedantic -ggdb -Isrc -Igmock-1.7.0
 
 all : bit testrunner prof
@@ -28,16 +29,16 @@ src/test_bitset.o : src/test_bitset.cpp src/bitset.hpp src/bitset_string.hpp
 	$(CXX) -o $@ -c src/test_bitset.cpp $(CXXFLAGS) --coverage
 
 gmock-1.7.0/custom_main.o : gmock-1.7.0/custom_main.cpp
-	$(CXX) -o $@ -c $< $(CXXFLAGS)
+	$(CXX) -o $@ -c $< -O3 -Wall -std=c++11 -Igmock-1.7.0
 
 gmock-1.7.0/gmock-gtest-all.o : gmock-1.7.0/gmock-gtest-all.cc
-	$(CXX) -o $@ -c $< $(CXXFLAGS)
+	$(CXX) -o $@ -c $< -O3 -Wall -std=c++11 -Igmock-1.7.0
 
 prof : src/prof.o
 	$(CXX) -o $@ $^ -fprofile-arcs -pg
 
 src/prof.o : src/prof.cpp src/bitset.hpp
-	$(CXX) -o $@ -c $< -O0 -Wall -Wextra -std=c++11 -pedantic -ggdb -I. -fprofile-arcs -pg
+	$(CXX) -o $@ -c $< -O3 -Wall -Wextra -std=c++11 -pedantic -ggdb -I. -fprofile-arcs -pg
 
 clean :
 	find . -name "*.o" | xargs rm -f
