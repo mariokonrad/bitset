@@ -680,6 +680,20 @@ TEST_F(Test_utils_bitset, uint8__any)
 	}
 }
 
+TEST_F(Test_utils_bitset, uint8__count__between)
+{
+	bitset<uint8_t> b;
+	b.append(0x55aa, 16);
+
+	EXPECT_EQ(b.count(), b.count(b.begin(), b.end()));
+	EXPECT_EQ(8u, b.count(b.begin(), b.end()));
+	EXPECT_EQ(0u, b.count(b.begin(), b.begin() + 1));
+	EXPECT_EQ(1u, b.count(b.begin(), b.begin() + 2));
+	EXPECT_EQ(1u, b.count(b.begin(), b.begin() + 3));
+	EXPECT_EQ(2u, b.count(b.begin(), b.begin() + 4));
+	EXPECT_EQ(2u, b.count(b.begin(), b.begin() + 5));
+}
+
 TEST_F(Test_utils_bitset, uint8__none)
 {
 	{
@@ -818,5 +832,44 @@ TEST_F(Test_utils_bitset, uint8__set_bit_out_of_range)
 	bitset<uint8_t> b{32};
 
 	EXPECT_ANY_THROW(b.set_bit(64, 1));
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__plus_equal)
+{
+	bitset<uint8_t> b{32};
+	b.append(0xaaaaaaaa, 32);
+
+	auto i = b.begin();
+
+	EXPECT_EQ(0u, i.get_pos());
+	i += 1;
+	EXPECT_EQ(1u, i.get_pos());
+	i += 1;
+	EXPECT_EQ(2u, i.get_pos());
+	i += 1;
+	EXPECT_EQ(3u, i.get_pos());
+	i += 1;
+	EXPECT_EQ(4u, i.get_pos());
+	i += 2;
+	EXPECT_EQ(6u, i.get_pos());
+	i += 3;
+	EXPECT_EQ(9u, i.get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__plus)
+{
+	bitset<uint8_t> b{32};
+	b.append(0xaaaaaaaa, 32);
+
+	auto i = b.begin();
+
+	ASSERT_EQ(0u, i.get_pos());
+
+	EXPECT_EQ(1u, (i + 1).get_pos());
+	EXPECT_EQ(2u, (i + 2).get_pos());
+	EXPECT_EQ(3u, (i + 3).get_pos());
+	EXPECT_EQ(4u, (i + 4).get_pos());
+	EXPECT_EQ(6u, (i + 6).get_pos());
+	EXPECT_EQ(9u, (i + 9).get_pos());
 }
 }

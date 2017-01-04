@@ -138,6 +138,16 @@ public:
 			return bs != nullptr && pos < bs->size() && bs->get_bit(pos) == true;
 		}
 
+		const_iterator operator+(size_type n) const noexcept
+		{
+			return const_iterator{*this} += n;
+		}
+
+		const_iterator operator-(size_type n) const noexcept
+		{
+			return const_iterator{*this} -= n;
+		}
+
 		const_iterator & operator+=(size_type ofs)
 		{
 			if (bs != nullptr && pos < bs->size()) {
@@ -712,6 +722,147 @@ public: // comparison operators
 	/// Comparison operator for the same bitset type.
 	bool operator!=(const bitset & other) const { return !(*this == other); }
 
+	/* TODO: comparison operators with bitsets of different configuration
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bool operator==(const bitset<XBlock, XContainer> & other) const
+	{
+		return ?;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bool operator!=(const bitset<XBlock, XContainer> & other) const
+	{
+		return !(*this == other);
+	}
+	*/
+
+	/* TODO: comparison operator for less, less or equal, greater, greater or equal
+	bool operator<(const bitset & other) const
+	{
+		// TODO
+		return false;
+	}
+
+	bool operator<=(const bitset & other) const
+	{
+		return ?;
+	}
+
+	bool operator>(const bitset & other) const
+	{
+		return ?;
+	}
+
+	bool operator>=(const bitset & other) const
+	{
+		return ?;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bool operator<(const bitset<XBlock, XContainer> & other) const
+	{
+		return ?;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bool operator<=(const bitset<XBlock, XContainer> & other) const
+	{
+		return ?;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bool operator>(const bitset<XBlock, XContainer> & other) const
+	{
+		return ?;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bool operator>=(const bitset<XBlock, XContainer> & other) const
+	{
+		return ?;
+	}
+	*/
+
+public: // arithmetic operators
+
+	/* TODO: increment operator
+	bitset & operator++() // ++bitset
+	{
+		?
+		return *this;
+	}
+
+	bitset operator++(int) // bitset++
+	{
+		bitset result{*this};
+		++(*this);
+		return result;
+	}
+	*/
+
+	/* TODO: decrement operator
+	bitset & operator--() // --bitset
+	{
+		?
+		return *this;
+	}
+
+	bitset operator--(int) // bitset--
+	{
+		bitset result{*this};
+		--(*this);
+		return result;
+	}
+	*/
+
+	/* TODO: plus operator
+	bitset & operator+=(const bitset & other)
+	{
+		?
+		return *this;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bitset & operator+=(const bitset<XBlock, XContainer> & other)
+	{
+		?
+		return *this;
+	}
+
+	friend bitset operator+(const bitset & a, const bitset & b)
+	{
+		?
+	}
+	*/
+
+	/* TODO: minus operator
+	bitset & operator-=(const bitset & other)
+	{
+		?
+		return *this;
+	}
+
+	template <class XBlock, class XContainer = std::vector<Block>,
+		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
+	bitset & operator-=(const bitset<XBlock, XContainer> & other)
+	{
+		?
+		return *this;
+	}
+
+	friend bitset operator-(const bitset & a, const bitset & b)
+	{
+		?
+	}
+	*/
+
 public: // other
 
 	/// Flips the bit at the specified index.
@@ -733,32 +884,44 @@ public: // other
 	/// Returns true if any of the bits are true.
 	///
 	/// @note This is implemented for readablility, not max performance.
-	bool any() const noexcept
+	bool any() const noexcept { return any(begin(), end()); }
+
+	/// Returns true if any of the bits in the specified range are true.
+	///
+	/// @note This is implemented for readablility, not max performance.
+	bool any(const_iterator first, const_iterator last) const noexcept
 	{
-		for (auto i = begin(); i != end(); ++i)
-			if (*i == true)
-				return true;
-		return false;
+		return count(first, last) > 0u;
 	}
 
 	/// Returns true if none of the bits are true.
 	///
 	/// @note This is implemented for readablility, not max performance.
-	bool none() const noexcept
+	bool none() const noexcept { return none(begin(), end()); }
+
+	/// Returns true if none of the bits within the specified range are true.
+	///
+	/// @note This is implemented for readablility, not max performance.
+	bool none(const_iterator first, const_iterator last) const noexcept
 	{
-		for (auto i = begin(); i != end(); ++i)
-			if (*i == true)
-				return false;
-		return true;
+		return count(first, last) == 0u;
 	}
 
 	/// Returns the number of bits set to true.
 	///
 	/// @note This is implemented for readablility, not max performance.
-	size_type count() const noexcept
+	size_type count() const noexcept { return count(begin(), end()); }
+
+	/// Returns the number of bits between the specified iterators.
+	///
+	/// @param[in] first Ponints to the first bit of the range to test.
+	/// @param[in] last Ponits to the bit after the range.
+	///
+	/// @note This is implemented for readablility, not max performance.
+	size_type count(const_iterator first, const_iterator last) const noexcept
 	{
 		size_type n = 0;
-		for (auto i = begin(); i != end(); ++i)
+		for (auto i = first; i != last; ++i)
 			if (*i == true)
 				++n;
 		return n;
