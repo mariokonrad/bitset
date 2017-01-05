@@ -763,6 +763,29 @@ TEST_F(Test_utils_bitset, uint8__comparison_equal)
 	EXPECT_FALSE(c == b);
 }
 
+TEST_F(Test_utils_bitset, uint8__uint16__comparison_equal)
+{
+	bitset<uint8_t> a;
+	bitset<uint16_t> b;
+	bitset<uint16_t> c;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0xaaaa, 16);
+
+	EXPECT_TRUE(a == a);
+	EXPECT_TRUE(b == b);
+	EXPECT_TRUE(c == c);
+
+	EXPECT_TRUE(a == b);
+	EXPECT_TRUE(b == a);
+
+	EXPECT_FALSE(a == c);
+	EXPECT_FALSE(c == a);
+	EXPECT_FALSE(b == c);
+	EXPECT_FALSE(c == b);
+}
+
 TEST_F(Test_utils_bitset, uint8__comparison_not_equal)
 {
 	bitset<uint8_t> a;
@@ -772,6 +795,29 @@ TEST_F(Test_utils_bitset, uint8__comparison_not_equal)
 	a.append(0xaa, 8);
 	b.append(0xaa, 8);
 	c.append(0x55, 8);
+
+	EXPECT_FALSE(a != a);
+	EXPECT_FALSE(b != b);
+	EXPECT_FALSE(c != c);
+
+	EXPECT_FALSE(a != b);
+	EXPECT_FALSE(b != a);
+
+	EXPECT_TRUE(a != c);
+	EXPECT_TRUE(c != a);
+	EXPECT_TRUE(b != c);
+	EXPECT_TRUE(c != b);
+}
+
+TEST_F(Test_utils_bitset, uint8__uint16__comparison_not_equal)
+{
+	bitset<uint8_t> a;
+	bitset<uint16_t> b;
+	bitset<uint16_t> c;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0xaaaa, 16);
 
 	EXPECT_FALSE(a != a);
 	EXPECT_FALSE(b != b);

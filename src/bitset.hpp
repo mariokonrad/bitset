@@ -716,27 +716,46 @@ public: // access operators
 
 public: // comparison operators
 
-	/// Comparison operator for the same bitset type.
+	/// Equality comparison operator for the same bitset type.
 	bool operator==(const bitset & other) const { return this == &other || data == other.data; }
 
-	/// Comparison operator for the same bitset type.
+	/// Inequality comparison operator for the same bitset type.
 	bool operator!=(const bitset & other) const { return !(*this == other); }
 
-	/* TODO: comparison operators with bitsets of different configuration
-	template <class XBlock, class XContainer = std::vector<Block>,
+	/// Equalily comparison operator for different bitset types.
+	///
+	/// Since the blocks differ, a comparison bit by bit is done.
+	///
+	/// @note This is implemented for readablility, not max performance.
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator==(const bitset<XBlock, XContainer> & other) const
+	bool operator==(const bitset<XBlock> & other) const
 	{
-		return ?;
+		if (size() != other.size())
+			return false;
+
+		auto i = begin();
+		auto j = other.begin();
+		while (i != end()) {
+			if (*i != *j)
+				return true;
+			++i;
+			++j;
+		}
+		return true;
 	}
 
-	template <class XBlock, class XContainer = std::vector<Block>,
+	/// Inequality comparison operator for different bitset types.
+	///
+	/// Since the blocks differ, a comparison bit by bit is done.
+	///
+	/// @note This is implemented for readablility, not max performance.
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator!=(const bitset<XBlock, XContainer> & other) const
+	bool operator!=(const bitset<XBlock> & other) const
 	{
 		return !(*this == other);
 	}
-	*/
 
 	/// Comparinson for 'less'.
 	bool operator<(const bitset & other) const
@@ -789,30 +808,30 @@ public: // comparison operators
 	bool operator>=(const bitset & other) const { return !(*this < other); }
 
 	/* TODO: comparison operator for less, less or equal, greater, greater or equal
-	template <class XBlock, class XContainer = std::vector<Block>,
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator<(const bitset<XBlock, XContainer> & other) const
+	bool operator<(const bitset<XBlock> & other) const
 	{
 		return ?;
 	}
 
-	template <class XBlock, class XContainer = std::vector<Block>,
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator<=(const bitset<XBlock, XContainer> & other) const
+	bool operator<=(const bitset<XBlock> & other) const
 	{
 		return ?;
 	}
 
-	template <class XBlock, class XContainer = std::vector<Block>,
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator>(const bitset<XBlock, XContainer> & other) const
+	bool operator>(const bitset<XBlock> & other) const
 	{
 		return ?;
 	}
 
-	template <class XBlock, class XContainer = std::vector<Block>,
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator>=(const bitset<XBlock, XContainer> & other) const
+	bool operator>=(const bitset<XBlock> & other) const
 	{
 		return ?;
 	}
@@ -857,9 +876,9 @@ public: // arithmetic operators
 		return *this;
 	}
 
-	template <class XBlock, class XContainer = std::vector<Block>,
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bitset & operator+=(const bitset<XBlock, XContainer> & other)
+	bitset & operator+=(const bitset<XBlock> & other)
 	{
 		?
 		return *this;
@@ -878,9 +897,9 @@ public: // arithmetic operators
 		return *this;
 	}
 
-	template <class XBlock, class XContainer = std::vector<Block>,
+	template <class XBlock,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bitset & operator-=(const bitset<XBlock, XContainer> & other)
+	bitset & operator-=(const bitset<XBlock> & other)
 	{
 		?
 		return *this;
@@ -889,6 +908,43 @@ public: // arithmetic operators
 	friend bitset operator-(const bitset & a, const bitset & b)
 	{
 		?
+	}
+	*/
+
+public: // logic operator
+
+	/* TODO
+	bitset & operator|=(const bitset & other)
+	{
+		// TODO
+		return *this;
+	}
+
+	bitset & operator&=(const bitset & other)
+	{
+		// TODO
+		return *this;
+	}
+
+	bitset & operator^=(const bitset & other)
+	{
+		// TODO
+		return *this;
+	}
+
+	bitset operator|(const bitset & other) const
+	{
+		// TODO
+	}
+
+	bitset operator&(const bitset & other) const
+	{
+		// TODO
+	}
+
+	bitset operator^(const bitset & other) const
+	{
+		// TODO
 	}
 	*/
 
