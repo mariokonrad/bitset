@@ -786,6 +786,138 @@ TEST_F(Test_utils_bitset, uint8__comparison_not_equal)
 	EXPECT_TRUE(c != b);
 }
 
+TEST_F(Test_utils_bitset, uint8__comparison_less)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+	bitset<uint8_t> d;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0x55, 8);
+	d.append(0x1111, 16);
+
+	EXPECT_FALSE(a < a);
+	EXPECT_FALSE(a < b);
+	EXPECT_FALSE(a < c);
+	EXPECT_TRUE(a < d);
+
+	EXPECT_FALSE(b < a);
+	EXPECT_FALSE(b < b);
+	EXPECT_FALSE(b < c);
+	EXPECT_TRUE(b < d);
+
+	EXPECT_TRUE(c < a);
+	EXPECT_TRUE(c < b);
+	EXPECT_FALSE(c < c);
+	EXPECT_TRUE(c < d);
+
+	EXPECT_FALSE(d < a);
+	EXPECT_FALSE(d < b);
+	EXPECT_FALSE(d < c);
+	EXPECT_FALSE(d < d);
+}
+
+TEST_F(Test_utils_bitset, uint8__comparison_less_or_equal)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+	bitset<uint8_t> d;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0x55, 8);
+	d.append(0x1111, 16);
+
+	EXPECT_TRUE(a <= a);
+	EXPECT_TRUE(a <= b);
+	EXPECT_FALSE(a <= c);
+	EXPECT_TRUE(a <= d);
+
+	EXPECT_TRUE(b <= a);
+	EXPECT_TRUE(b <= b);
+	EXPECT_FALSE(b <= c);
+	EXPECT_TRUE(b <= d);
+
+	EXPECT_TRUE(c <= a);
+	EXPECT_TRUE(c <= b);
+	EXPECT_TRUE(c <= c);
+	EXPECT_TRUE(c <= d);
+
+	EXPECT_FALSE(d <= a);
+	EXPECT_FALSE(d <= b);
+	EXPECT_FALSE(d <= c);
+	EXPECT_TRUE(d <= d);
+}
+
+TEST_F(Test_utils_bitset, uint8__comparison_greater)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+	bitset<uint8_t> d;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0x55, 8);
+	d.append(0x1111, 16);
+
+	EXPECT_FALSE(a > a);
+	EXPECT_FALSE(a > b);
+	EXPECT_TRUE(a > c);
+	EXPECT_FALSE(a > d);
+
+	EXPECT_FALSE(b > a);
+	EXPECT_FALSE(b > b);
+	EXPECT_TRUE(b > c);
+	EXPECT_FALSE(b > d);
+
+	EXPECT_FALSE(c > a);
+	EXPECT_FALSE(c > b);
+	EXPECT_FALSE(c > c);
+	EXPECT_FALSE(c > d);
+
+	EXPECT_TRUE(d > a);
+	EXPECT_TRUE(d > b);
+	EXPECT_TRUE(d > c);
+	EXPECT_FALSE(d > d);
+}
+
+TEST_F(Test_utils_bitset, uint8__comparison_greater_or_equal)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+	bitset<uint8_t> d;
+
+	a.append(0xaa, 8);
+	b.append(0xaa, 8);
+	c.append(0x55, 8);
+	d.append(0x1111, 16);
+
+	EXPECT_TRUE(a >= a);
+	EXPECT_TRUE(a >= b);
+	EXPECT_TRUE(a >= c);
+	EXPECT_FALSE(a >= d);
+
+	EXPECT_TRUE(b >= a);
+	EXPECT_TRUE(b >= b);
+	EXPECT_TRUE(b >= c);
+	EXPECT_FALSE(b >= d);
+
+	EXPECT_FALSE(c >= a);
+	EXPECT_FALSE(c >= b);
+	EXPECT_TRUE(c >= c);
+	EXPECT_FALSE(c >= d);
+
+	EXPECT_TRUE(d >= a);
+	EXPECT_TRUE(d >= b);
+	EXPECT_TRUE(d >= c);
+	EXPECT_TRUE(d >= d);
+}
+
 TEST_F(Test_utils_bitset, uint8__append_bits_exceeds_type)
 {
 	bitset<uint8_t> b{32};

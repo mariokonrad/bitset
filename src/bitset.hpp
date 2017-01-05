@@ -738,28 +738,57 @@ public: // comparison operators
 	}
 	*/
 
-	/* TODO: comparison operator for less, less or equal, greater, greater or equal
+	/// Comparinson for 'less'.
 	bool operator<(const bitset & other) const
 	{
-		// TODO
+		// are there any bits in the range of one bitset that exceeds the other
+		if (size() > other.size()) {
+			if (any(begin() + (size() - other.size()), end()))
+				return false;
+		} else if (other.size() > size()) {
+			if (other.any(other.begin() + (other.size() - size()), other.end()))
+				return true;
+		}
+
+		// check all blocks from the most to the least significant.
+		for (auto i = size() / bits_per_block; i > 0; --i) {
+			if (data[i - 1] < other.data[i - 1])
+				return true;
+		}
+
+		// no difference found, they are the same
 		return false;
 	}
 
+	/// Comparinson for 'less or equal'.
 	bool operator<=(const bitset & other) const
 	{
-		return ?;
+		// are there any bits in the range of one bitset that exceeds the other
+		if (size() > other.size()) {
+			if (any(begin() + (size() - other.size()), end()))
+				return false;
+		} else if (other.size() > size()) {
+			if (other.any(other.begin() + (other.size() - size()), other.end()))
+				return true;
+		}
+
+		// check all blocks from the most to the least significant.
+		for (auto i = size() / bits_per_block; i > 0; --i) {
+			if (data[i - 1] > other.data[i - 1])
+				return false;
+		}
+
+		// no difference found, they are the same
+		return true;
 	}
 
-	bool operator>(const bitset & other) const
-	{
-		return ?;
-	}
+	/// Comparinson for 'greater'.
+	bool operator>(const bitset & other) const { return !(*this <= other); }
 
-	bool operator>=(const bitset & other) const
-	{
-		return ?;
-	}
+	/// Comparinson for 'greater or equal'.
+	bool operator>=(const bitset & other) const { return !(*this < other); }
 
+	/* TODO: comparison operator for less, less or equal, greater, greater or equal
 	template <class XBlock, class XContainer = std::vector<Block>,
 		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
 	bool operator<(const bitset<XBlock, XContainer> & other) const
@@ -891,7 +920,10 @@ public: // other
 	/// @note This is implemented for readablility, not max performance.
 	bool any(const_iterator first, const_iterator last) const noexcept
 	{
-		return count(first, last) > 0u;
+		for (auto i = first; i != last; ++i)
+			if (*i == true)
+				return true;
+		return false;
 	}
 
 	/// Returns true if none of the bits are true.
@@ -904,7 +936,10 @@ public: // other
 	/// @note This is implemented for readablility, not max performance.
 	bool none(const_iterator first, const_iterator last) const noexcept
 	{
-		return count(first, last) == 0u;
+		for (auto i = first; i != last; ++i)
+			if (*i == true)
+				return false;
+		return true;
 	}
 
 	/// Returns the number of bits set to true.
