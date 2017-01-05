@@ -24,7 +24,6 @@ namespace mk
 /// claims nor wants to be.
 ///
 /// @tparam Block The data type of the underlying block type.
-/// @tparam Container The container type to store blocks.
 ///
 /// **Example:** appending individual bits
 /// @code
@@ -50,22 +49,23 @@ namespace mk
 /// bits.set(1, 512, 1); // set one bit to 1 at offset 512
 /// @endcode
 ///
-template <class Block, class Container = std::vector<Block>,
+template <class Block,
 	class = typename std::enable_if<!std::numeric_limits<Block>::is_signed>::type>
 class bitset
 {
 public:
 	using block_type = Block;
-	enum {
-		/// It is assumed, that a byte has 8 bits. This template will
-		/// not work on other architectures.
-		bits_per_byte = 8
-	};
-	enum { bits_per_block = sizeof(block_type) * bits_per_byte };
+
+	/// It is assumed, that a byte has 8 bits. This template will
+	/// not work on other architectures.
+	static constexpr auto bits_per_byte = 8u;
+
+	static constexpr auto bits_per_block = sizeof(block_type) * bits_per_byte;
 
 public:
-	using size_type = typename Container::size_type;
-	using data_const_iterator = typename Container::const_iterator;
+	using container = std::vector<block_type>;
+	using size_type = typename container::size_type;
+	using data_const_iterator = typename container::const_iterator;
 
 	/// This is a non-std conform const iterator. The intention is
 	/// to provide a basic iterator functionality without claiming
@@ -103,32 +103,32 @@ public:
 		const_iterator & operator=(const const_iterator &) = default;
 		const_iterator & operator=(const_iterator &&) noexcept = default;
 
-		bool operator==(const const_iterator & other) const
+		bool operator==(const const_iterator & other) const noexcept
 		{
 			return bs == other.bs && pos == other.pos;
 		}
 
-		bool operator!=(const const_iterator & other) const
+		bool operator!=(const const_iterator & other) const noexcept
 		{
 			return bs != other.bs || pos != other.pos;
 		}
 
-		bool operator<(const const_iterator & other) const
+		bool operator<(const const_iterator & other) const noexcept
 		{
 			return bs == other.bs && pos < other.pos;
 		}
 
-		bool operator>(const const_iterator & other) const
+		bool operator>(const const_iterator & other) const noexcept
 		{
 			return bs == other.bs && pos > other.pos;
 		}
 
-		bool operator<=(const const_iterator & other) const
+		bool operator<=(const const_iterator & other) const noexcept
 		{
 			return bs == other.bs && pos <= other.pos;
 		}
 
-		bool operator>=(const const_iterator & other) const
+		bool operator>=(const const_iterator & other) const noexcept
 		{
 			return bs == other.bs && pos >= other.pos;
 		}
@@ -219,7 +219,7 @@ public:
 
 private:
 	size_type pos; // number of bits contained within the set
-	Container data;
+	container data;
 
 private:
 	/// Extends the container by the specified number of bits.
@@ -423,14 +423,14 @@ public: // constructors
 	///
 	/// @param[in] begin Start position of the data (inclusive)
 	/// @param[in] end End position of the data (exclusive)
-	bitset(typename Container::const_iterator begin, typename Container::const_iterator end)
+	bitset(typename container::const_iterator begin, typename container::const_iterator end)
 		: pos((end - begin) * bits_per_block)
 		, data(begin, end)
 	{
 	}
 
 	/// Construction with move of the container, this does not copy any data.
-	explicit bitset(Container && container)
+	explicit bitset(container && container)
 		: pos(container.size() * bits_per_block)
 		, data(std::move(container))
 	{
