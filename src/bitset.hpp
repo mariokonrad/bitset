@@ -4,11 +4,12 @@
 /// Copyright (c) 2015 Mario Konrad <mario.konrad@gmx.net>
 /// The code is licensed under the BSD License (see file LICENSE)
 
-#include <vector>
-#include <type_traits>
-#include <limits>
+#include <algorithm>
 #include <istream>
+#include <limits>
 #include <stdexcept>
+#include <type_traits>
+#include <vector>
 #include <cassert>
 
 namespace mk
@@ -77,6 +78,7 @@ public:
 
 	public:
 		using value_type = bool;
+		using iterator_category = std::random_access_iterator_tag;
 
 	private:
 		const bitset * bs;
@@ -217,6 +219,8 @@ public:
 			*this += bits;
 		}
 	};
+
+	// TODO: class iterator
 
 private:
 	size_type pos; // number of bits contained within the set
