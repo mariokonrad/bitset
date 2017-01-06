@@ -736,7 +736,7 @@ public: // comparison operators
 		auto j = other.begin();
 		while (i != end()) {
 			if (*i != *j)
-				return true;
+				return false;
 			++i;
 			++j;
 		}
@@ -913,13 +913,12 @@ public: // logic operator
 
 	/// Logical or operation. The resulting bitset is of the size of the larger one.
 	///
-	/// Example: '0011' | '11000' = '11011'
+	/// Example: '0011' | '11000' = '11110'
 	bitset & operator|=(const bitset & other)
 	{
 		if (size() < other.size()) {
-			const auto diff = other.size() - size();
-			extend(diff);
-			pos += diff;
+			extend(other.size() - size());
+			pos = other.size();
 		}
 
 		for (auto i = 0u; i < data.size(); ++i)
@@ -928,10 +927,11 @@ public: // logic operator
 		return *this;
 	}
 
-	/* TEMP DISABLED
+	bitset operator|(const bitset & other) const { return bitset{*this} |= other; }
+
 	/// Logical or operation. The resulting bitset is of the size of the smaller one.
 	///
-	/// Example: '0011' & '11001' = '0001'
+	/// Example: '0111' & '11001' = '0100'
 	bitset & operator&=(const bitset & other)
 	{
 		if (size() > other.size()) {
@@ -945,30 +945,26 @@ public: // logic operator
 
 		return *this;
 	}
-	*/
 
-	/* TODO
+	bitset operator&(const bitset & other) const { return bitset{*this} &= other; }
+
+	/// Logical xor operation. The resulting bitset is of the size of the larger one.
+	///
+	/// Example: '0011' ^ '11100' = '11011'
 	bitset & operator^=(const bitset & other)
 	{
-		// TODO
+		if (size() < other.size()) {
+			extend(other.size() - size());
+			pos = other.size();
+		}
+
+		for (auto i = 0u; i < data.size(); ++i)
+			data[i] ^= other.data[i];
+
 		return *this;
 	}
 
-	bitset operator|(const bitset & other) const
-	{
-		// TODO
-	}
-
-	bitset operator&(const bitset & other) const
-	{
-		// TODO
-	}
-
-	bitset operator^(const bitset & other) const
-	{
-		// TODO
-	}
-	*/
+	bitset operator^(const bitset & other) const { return bitset{*this} ^= other; }
 
 public: // other
 

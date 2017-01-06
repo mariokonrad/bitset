@@ -634,6 +634,38 @@ TEST_F(Test_utils_bitset, uint8__reset_all)
 	EXPECT_STREQ("00000000", to_string(b).c_str());
 }
 
+TEST_F(Test_utils_bitset, uint8__reset__invalid_index)
+{
+	bitset<uint8_t> b{8};
+	b.set(0xff, 0, 8);
+
+	EXPECT_ANY_THROW(b.reset(8));
+}
+
+TEST_F(Test_utils_bitset, uint8__reset)
+{
+	bitset<uint8_t> b{8};
+	b.set(0xff, 0, 8);
+
+	EXPECT_STREQ("11111111", to_string(b).c_str());
+	b.reset(0);
+	EXPECT_STREQ("01111111", to_string(b).c_str());
+	b.reset(1);
+	EXPECT_STREQ("00111111", to_string(b).c_str());
+	b.reset(2);
+	EXPECT_STREQ("00011111", to_string(b).c_str());
+	b.reset(3);
+	EXPECT_STREQ("00001111", to_string(b).c_str());
+	b.reset(4);
+	EXPECT_STREQ("00000111", to_string(b).c_str());
+	b.reset(5);
+	EXPECT_STREQ("00000011", to_string(b).c_str());
+	b.reset(6);
+	EXPECT_STREQ("00000001", to_string(b).c_str());
+	b.reset(7);
+	EXPECT_STREQ("00000000", to_string(b).c_str());
+}
+
 TEST_F(Test_utils_bitset, uint8__all)
 {
 	{
@@ -1068,7 +1100,6 @@ TEST_F(Test_utils_bitset, uint8__logic_or_assign)
 	EXPECT_EQ(0xaa00, c.get<uint16_t>(0, 16));
 }
 
-/* TEMP DISABLED
 TEST_F(Test_utils_bitset, uint8__logic_and_assign)
 {
 	{
@@ -1090,15 +1121,25 @@ TEST_F(Test_utils_bitset, uint8__logic_and_assign)
 		bitset<uint8_t> bs1;
 		bitset<uint8_t> bs2;
 
-		bs1.append(3, 4); //   0011
+		bs1.append(7, 4); //  0111
 		bs2.append(25, 5); // 11001
 
-		bs1 &= bs2;
+		bs1 &= bs2; // result: 0100
 
-		EXPECT_EQ(1, bs1.get<uint8_t>(0, 4));
+		EXPECT_EQ(4u, bs1.get<uint8_t>(0, 4));
+	}
+	{
+		bitset<uint8_t> bs1;
+		bitset<uint8_t> bs2;
+
+		bs1.append(25, 5); // 11001
+		bs2.append(7, 4); //  0111
+
+		bs1 &= bs2; // result: 0100
+
+		EXPECT_EQ(4u, bs1.get<uint8_t>(0, 4));
 	}
 }
-*/
 
 TEST_F(Test_utils_bitset, error_get_block)
 {
