@@ -1100,13 +1100,13 @@ TEST_F(Test_utils_bitset, uint8__logic_and_assign)
 }
 */
 
-/* TEMP DISABLED
 TEST_F(Test_utils_bitset, error_get_block)
 {
 	bitset<uint8_t> bs1;
 	bs1.append(3, 4); // 0011
 
-	EXPECT_EQ(3u, bs1.get<uint8_t>(0, 4));
+	const auto result = bs1.get<uint8_t>(0, 4);
+
+	EXPECT_EQ(3u, result);
 }
-*/
 }

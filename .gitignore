@@ -9,3 +9,4 @@ coverage.info
 coverage
 *.gcno
 .ycm_extra_conf.pyc
+.gdbinit

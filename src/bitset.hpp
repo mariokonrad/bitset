@@ -9,6 +9,7 @@
 #include <limits>
 #include <istream>
 #include <stdexcept>
+#include <cassert>
 
 namespace mk
 {
@@ -363,16 +364,13 @@ private:
 	/// @exception std::out_of_range There are not enough bits to read, offset and number
 	///            of bits exceed the total number of available bits. It is not possible
 	///            to read past the end.
-	void get_block(block_type & v, size_type ofs, size_type bits = bits_per_block) const
+	void get_block(block_type & v, size_type ofs, size_type bits = bits_per_block) const noexcept
 	{
-		if (bits <= 0)
-			return;
-		if (ofs + bits > size())
-			throw std::out_of_range{"offset and requested bits out of range of available bits"};
-		size_type i = ofs / bits_per_block; // index of current block
+		assert(bits > 0);
+		const size_type i = ofs / bits_per_block; // index of current block
 
 		// number of bits unused within the current block
-		size_type u_bits = bits_per_block - (ofs % bits_per_block);
+		const size_type u_bits = bits_per_block - (ofs % bits_per_block);
 
 		if (u_bits >= bits) {
 			// desired data fully within the current block
@@ -667,7 +665,7 @@ public: // get
 			} else {
 				bits -= u_bits;
 			}
-			value = +block;
+			value += block;
 			ofs += u_bits;
 		}
 
