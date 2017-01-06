@@ -913,19 +913,43 @@ public: // arithmetic operators
 
 public: // logic operator
 
-	/* TODO
+	/// Logical or operation. The resulting bitset is of the size of the larger one.
+	///
+	/// Example: '0011' | '11000' = '11011'
 	bitset & operator|=(const bitset & other)
 	{
-		// TODO
+		if (size() < other.size()) {
+			const auto diff = other.size() - size();
+			extend(diff);
+			pos += diff;
+		}
+
+		for (auto i = 0u; i < data.size(); ++i)
+			data[i] |= other.data[i];
+
 		return *this;
 	}
 
+	/* TEMP DISABLED
+	/// Logical or operation. The resulting bitset is of the size of the smaller one.
+	///
+	/// Example: '0011' & '11001' = '0001'
 	bitset & operator&=(const bitset & other)
 	{
-		// TODO
+		if (size() > other.size()) {
+			for (auto i = other.size(); i < size(); ++i)
+				reset(i);
+			pos = other.size();
+		}
+
+		for (auto i = 0u; i < data.size(); ++i)
+			data[i] &= other.data[i];
+
 		return *this;
 	}
+	*/
 
+	/* TODO
 	bitset & operator^=(const bitset & other)
 	{
 		// TODO

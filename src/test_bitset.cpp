@@ -1050,4 +1050,63 @@ TEST_F(Test_utils_bitset, uint8__const_iterator__plus)
 	EXPECT_EQ(6u, (i + 6).get_pos());
 	EXPECT_EQ(9u, (i + 9).get_pos());
 }
+
+TEST_F(Test_utils_bitset, uint8__logic_or_assign)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+
+	a.append(0x00aa, 16);
+	b.append(0xaa00, 16);
+	c.append(0xaa, 8);
+
+	a |= b;
+	c |= b;
+
+	EXPECT_EQ(0xaaaa, a.get<uint16_t>(0, 16));
+	EXPECT_EQ(0xaa00, c.get<uint16_t>(0, 16));
+}
+
+/* TEMP DISABLED
+TEST_F(Test_utils_bitset, uint8__logic_and_assign)
+{
+	{
+		bitset<uint8_t> a;
+		bitset<uint8_t> b;
+		bitset<uint8_t> c;
+
+		a.append(0x00aa, 16);
+		b.append(0xaa00, 16);
+		c.append(0xaa, 8);
+
+		a &= b;
+		c &= b;
+
+		EXPECT_EQ(0x0000, a.get<uint16_t>(0, 16));
+		EXPECT_EQ(0xaa, c.get<uint16_t>(0, 8));
+	}
+	{
+		bitset<uint8_t> bs1;
+		bitset<uint8_t> bs2;
+
+		bs1.append(3, 4); //   0011
+		bs2.append(25, 5); // 11001
+
+		bs1 &= bs2;
+
+		EXPECT_EQ(1, bs1.get<uint8_t>(0, 4));
+	}
+}
+*/
+
+/* TEMP DISABLED
+TEST_F(Test_utils_bitset, error_get_block)
+{
+	bitset<uint8_t> bs1;
+	bs1.append(3, 4); // 0011
+
+	EXPECT_EQ(3u, bs1.get<uint8_t>(0, 4));
+}
+*/
 }
