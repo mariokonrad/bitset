@@ -442,10 +442,10 @@ public: // container operations
 
 	/// Returns the capacity of this bit set. Note: not all bits must have
 	/// been occupied.
-	size_type capacity() const { return data.size() * bits_per_block; }
+	size_type capacity() const noexcept { return data.size() * bits_per_block; }
 
 	/// Returns the number of used bits.
-	size_type size() const { return pos; }
+	size_type size() const noexcept { return pos; }
 
 	/// Reserves the number of blocks within this set.
 	///
