@@ -841,10 +841,45 @@ public: // comparison operators
 
 public: // arithmetic operators
 
-	/* TODO: increment operator
+	/// Increments the bitset by one. If an overflow is to occurr, the bitset
+	/// resets to 0 and continues counting.
 	bitset & operator++() // ++bitset
 	{
-		?
+		if (size() <= 0)
+			return *this;
+
+		const size_type u_bits = size() % bits_per_block;
+
+		// parts of a block
+		if (u_bits > 0) {
+			size_type ofs = bits_per_block * (size() / bits_per_block);
+
+			block_type block;
+			get_block(block, ofs, u_bits);
+
+			if (block < (block_type{1} << u_bits)) {
+				++block;
+				set_block(block, ofs, u_bits);
+				return *this;
+			}
+			block = block_type{}; // maximum reached, overflow to the next block
+			set_block(block, ofs, u_bits);
+		}
+
+		// full blocks
+		for (size_type i = size() / bits_per_block; i > 0; --i) {
+			const size_type ofs = (i - 1) * bits_per_block;
+			block_type block;
+			get_block(block, ofs);
+			if (block < std::numeric_limits<block_type>::max()) {
+				++block;
+				set_block(block, ofs);
+				return *this;
+			}
+			block = block_type{};
+			set_block(block, ofs);
+		}
+
 		return *this;
 	}
 
@@ -854,7 +889,6 @@ public: // arithmetic operators
 		++(*this);
 		return result;
 	}
-	*/
 
 	/* TODO: decrement operator
 	bitset & operator--() // --bitset

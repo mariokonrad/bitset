@@ -1150,4 +1150,36 @@ TEST_F(Test_utils_bitset, error_get_block)
 
 	EXPECT_EQ(3u, result);
 }
+
+TEST_F(Test_utils_bitset, uint8__arithmetic__increment)
+{
+	{
+		bitset<uint8_t> b{8};
+
+		EXPECT_STREQ("00000000", to_string(b).c_str());
+		++b;
+		EXPECT_STREQ("00000001", to_string(b).c_str());
+		b++;
+		EXPECT_STREQ("00000010", to_string(b).c_str());
+
+		b.set(0xff, 0, 8);
+		EXPECT_STREQ("11111111", to_string(b).c_str());
+		++b;
+		EXPECT_STREQ("00000000", to_string(b).c_str());
+
+		b.set(0xff, 0, 8);
+		EXPECT_STREQ("11111111", to_string(b).c_str());
+		b++;
+		EXPECT_STREQ("00000000", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b{4};
+
+		EXPECT_STREQ("0000", to_string(b).c_str());
+		++b;
+		EXPECT_STREQ("0001", to_string(b).c_str());
+		b++;
+		EXPECT_STREQ("0010", to_string(b).c_str());
+	}
+}
 }
