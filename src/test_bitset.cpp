@@ -1175,11 +1175,49 @@ TEST_F(Test_utils_bitset, uint8__arithmetic__increment)
 	{
 		bitset<uint8_t> b{4};
 
+		b.set(0xf, 0, 4);
+		EXPECT_STREQ("1111", to_string(b).c_str());
+		++b;
 		EXPECT_STREQ("0000", to_string(b).c_str());
 		++b;
 		EXPECT_STREQ("0001", to_string(b).c_str());
 		b++;
 		EXPECT_STREQ("0010", to_string(b).c_str());
+	}
+}
+
+TEST_F(Test_utils_bitset, uint8__arithmetic__decrement)
+{
+	{
+		bitset<uint8_t> b{8};
+
+		b.set(0xff, 0, 8);
+		EXPECT_STREQ("11111111", to_string(b).c_str());
+		--b;
+		EXPECT_STREQ("11111110", to_string(b).c_str());
+		b--;
+		EXPECT_STREQ("11111101", to_string(b).c_str());
+
+		b.set(0x00, 0, 8);
+		EXPECT_STREQ("00000000", to_string(b).c_str());
+		--b;
+		EXPECT_STREQ("11111111", to_string(b).c_str());
+
+		b.set(0x00, 0, 8);
+		EXPECT_STREQ("00000000", to_string(b).c_str());
+		b--;
+		EXPECT_STREQ("11111111", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b{4};
+
+		EXPECT_STREQ("0000", to_string(b).c_str());
+		--b;
+		EXPECT_STREQ("1111", to_string(b).c_str());
+		--b;
+		EXPECT_STREQ("1110", to_string(b).c_str());
+		b--;
+		EXPECT_STREQ("1101", to_string(b).c_str());
 	}
 }
 }

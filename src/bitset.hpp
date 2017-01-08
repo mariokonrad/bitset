@@ -1,7 +1,7 @@
 #ifndef __MK__BITSET__HPP__
 #define __MK__BITSET__HPP__
 
-/// Copyright (c) 2015 Mario Konrad <mario.konrad@gmx.net>
+/// Copyright (c) 2016 Mario Konrad <mario.konrad@gmx.net>
 /// The code is licensed under the BSD License (see file LICENSE)
 
 #include <algorithm>
@@ -809,36 +809,6 @@ public: // comparison operators
 	/// Comparinson for 'greater or equal'.
 	bool operator>=(const bitset & other) const { return !(*this < other); }
 
-	/* TODO: comparison operator for less, less or equal, greater, greater or equal
-	template <class XBlock,
-		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator<(const bitset<XBlock> & other) const
-	{
-		return ?;
-	}
-
-	template <class XBlock,
-		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator<=(const bitset<XBlock> & other) const
-	{
-		return ?;
-	}
-
-	template <class XBlock,
-		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator>(const bitset<XBlock> & other) const
-	{
-		return ?;
-	}
-
-	template <class XBlock,
-		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bool operator>=(const bitset<XBlock> & other) const
-	{
-		return ?;
-	}
-	*/
-
 public: // arithmetic operators
 
 	/// Increments the bitset by one. If an overflow is to occurr, the bitset
@@ -868,16 +838,11 @@ public: // arithmetic operators
 
 		// full blocks
 		for (size_type i = size() / bits_per_block; i > 0; --i) {
-			const size_type ofs = (i - 1) * bits_per_block;
-			block_type block;
-			get_block(block, ofs);
-			if (block < std::numeric_limits<block_type>::max()) {
-				++block;
-				set_block(block, ofs);
+			if (data[i - 1] < std::numeric_limits<block_type>::max()) {
+				++data[i - 1];
 				return *this;
 			}
-			block = block_type{};
-			set_block(block, ofs);
+			data[i - 1] = block_type{};
 		}
 
 		return *this;
@@ -890,10 +855,40 @@ public: // arithmetic operators
 		return result;
 	}
 
-	/* TODO: decrement operator
+	/// Decrements the bitset by one. If an underflow is to occurr, the bitset
+	/// resets to all 1es and continues counting.
 	bitset & operator--() // --bitset
 	{
-		?
+		if (size() <= 0)
+			return *this;
+
+		const size_type u_bits = size() % bits_per_block;
+
+		// parts of a block
+		if (u_bits > 0) {
+			size_type ofs = bits_per_block * (size() / bits_per_block);
+
+			block_type block;
+			get_block(block, ofs, u_bits);
+
+			if (block > 0) {
+				--block;
+				set_block(block, ofs, u_bits);
+				return *this;
+			}
+			block = (block_type{1} << u_bits) - 1; // maximum reached, overflow to the next block
+			set_block(block, ofs, u_bits);
+		}
+
+		// full blocks
+		for (size_type i = size() / bits_per_block; i > 0; --i) {
+			if (data[i - 1] > 0) {
+				--data[i - 1];
+				return *this;
+			}
+			data[i - 1] = std::numeric_limits<block_type>::max();
+		}
+
 		return *this;
 	}
 
@@ -903,47 +898,32 @@ public: // arithmetic operators
 		--(*this);
 		return result;
 	}
-	*/
 
-	/* TODO: plus operator
-	bitset & operator+=(const bitset & other)
+public: // shift operator
+
+	/* TODO
+	bitset & shl(size_type bits)
 	{
-		?
+		// TODO: implementation
 		return *this;
 	}
 
-	template <class XBlock,
-		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bitset & operator+=(const bitset<XBlock> & other)
+	bitset & shr(size_type bits)
 	{
-		?
+		// TODO: implementation
 		return *this;
 	}
 
-	friend bitset operator+(const bitset & a, const bitset & b)
+	bitset & rol(size_type bits)
 	{
-		?
-	}
-	*/
-
-	/* TODO: minus operator
-	bitset & operator-=(const bitset & other)
-	{
-		?
+		// TODO: implementation
 		return *this;
 	}
 
-	template <class XBlock,
-		class = typename std::enable_if<!std::numeric_limits<XBlock>::is_signed>::type>
-	bitset & operator-=(const bitset<XBlock> & other)
+	bitset & ror(size_type bits)
 	{
-		?
+		// TODO: implementation
 		return *this;
-	}
-
-	friend bitset operator-(const bitset & a, const bitset & b)
-	{
-		?
 	}
 	*/
 

@@ -96,6 +96,9 @@ Arithmetic operators:
     bitset & operator++();
     bitset operator++(int);
 
+    bitset & operator--();
+    bitset operator--(int);
+
 
 Logic operators:
 
