@@ -4,8 +4,6 @@
 /// Copyright (c) 2016 Mario Konrad <mario.konrad@gmx.net>
 /// The code is licensed under the BSD License (see file LICENSE)
 
-#include <algorithm>
-#include <istream>
 #include <limits>
 #include <stdexcept>
 #include <type_traits>
@@ -489,23 +487,6 @@ public: // append
 			append(bit, 1);
 	}
 
-	/// Reads blocks from the stream and appends them to the bitset.
-	///
-	/// @param[in] is Stream to read block from.
-	/// @param[in] blocks Number of blocks to read.
-	/// @return Number of blocks read from the stream.
-	size_type append(std::istream & is, size_type blocks)
-	{
-		size_type i = 0;
-		block_type block;
-		while (is.good() && !is.eof() && i < blocks) {
-			is.read(reinterpret_cast<char *>(&block), sizeof(block));
-			append_block(block);
-			++i;
-		}
-		return i;
-	}
-
 	/// Appends the lowest significant bits of the specified data to the
 	/// bit set. The set will be extended if necessary.
 	/// The second parameter specifies the number of bits to be used from
@@ -902,6 +883,30 @@ public: // arithmetic operators
 public: // shift operator
 
 	/* TODO
+	bitset & operator<<=(size_type bits)
+	{
+		return shl(bits);
+	}
+
+	bitset operator<<(size_type bits)
+	{
+		bitset result{*this}'
+		shl(bits);
+		return result;
+	}
+
+	bitset & operator>>=(size_type bits)
+	{
+		return shr(bits);
+	}
+
+	bitset operator>>(size_type bits)
+	{
+		bitset result{*this}'
+		shr(bits);
+		return result;
+	}
+
 	bitset & shl(size_type bits)
 	{
 		// TODO: implementation
