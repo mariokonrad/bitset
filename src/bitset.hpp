@@ -471,6 +471,10 @@ public: // iterators
 
 	const_iterator end() const { return const_iterator(this, size()); }
 
+	const_iterator cbegin() const { return const_iterator(this, 0); }
+
+	const_iterator cend() const { return const_iterator(this, size()); }
+
 public: // append
 
 	/// Appends another bitset to this one.
@@ -881,50 +885,64 @@ public: // arithmetic operators
 	}
 
 public: // shift operator
-
-	/* TODO
-	bitset & operator<<=(size_type bits)
-	{
-		return shl(bits);
-	}
-
-	bitset operator<<(size_type bits)
-	{
-		bitset result{*this}'
-		shl(bits);
-		return result;
-	}
-
-	bitset & operator>>=(size_type bits)
-	{
-		return shr(bits);
-	}
-
-	bitset operator>>(size_type bits)
-	{
-		bitset result{*this}'
-		shr(bits);
-		return result;
-	}
-
 	bitset & shl(size_type bits)
 	{
-		// TODO: implementation
+		// copy all bits necessary, block wise.
+		size_type r_ofs = bits;
+		size_type w_ofs = 0;
+		while (r_ofs < size()) {
+
+			// this resembles std::min, but std::min complains about
+			// bits_per_block being an undefined reference.
+			const size_type d = size() - r_ofs;
+			size_type u_bits = d < bits_per_block ? d : bits_per_block;
+
+			block_type block;
+			get_block(block, r_ofs, u_bits);
+			set_block(block, w_ofs, u_bits);
+			r_ofs += u_bits;
+			w_ofs += u_bits;
+		}
+
+		// overwrite all remaining bits with zeroes.
+		while (w_ofs < size()) {
+
+			// same issue with std::min here.
+			const size_type d = size() - w_ofs;
+			size_type u_bits = d < bits_per_block ? d : bits_per_block;
+
+			set_block(0, w_ofs, u_bits);
+			w_ofs += bits_per_block;
+		}
+
 		return *this;
 	}
 
+	bitset & operator<<=(size_type bits) { return shl(bits); }
+
+	bitset operator<<(size_type bits) const { return bitset{*this} <<= bits; }
+
+	/* TODO
 	bitset & shr(size_type bits)
 	{
 		// TODO: implementation
 		return *this;
 	}
 
+	bitset & operator>>=(size_type bits) { return shr(bits); }
+
+	bitset operator>>(size_type bits) const { return bitset{*this} >>= bits; }
+	*/
+
+	/* TODO
 	bitset & rol(size_type bits)
 	{
 		// TODO: implementation
 		return *this;
 	}
+	*/
 
+	/* TODO
 	bitset & ror(size_type bits)
 	{
 		// TODO: implementation

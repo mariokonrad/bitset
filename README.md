@@ -1,7 +1,8 @@
 bitset
 ======
 
-Bit set operations.
+This is a dynamic bitset, supporting various operations.
+
 
 Supported Operations
 --------------------
@@ -23,8 +24,11 @@ Container operations:
 
 Iterator operations:
 
+	// const iterator
     const_iterator begin() const;
     const_iterator end() const;
+    const_iterator cbegin() const;
+    const_iterator cend() const;
 
 
 Append to the bitset:
@@ -79,35 +83,49 @@ Random access read:
     bool operator[](size_type i) const;
 
 
-Comparison operators:
+Comparison:
 
     // comparison for equal and inequal. works with bitsets of different block type as well.
     bool operator==(const bitset & other) const;
     bool operator!=(const bitset & other) const;
 
+    // comparison for less, less or equal, greater, greater or equal.
     bool operator<(const bitset & other) const;
     bool operator<=(const bitset & other) const;
     bool operator>(const bitset & other) const;
     bool operator>=(const bitset & other) const;
 
 
-Arithmetic operators:
+Arithmetic operations:
 
+    // increment
     bitset & operator++();
     bitset operator++(int);
 
+    // decrement
     bitset & operator--();
     bitset operator--(int);
 
 
-Logic operators:
+Bit shift:
 
+    // shift left number of bits
+    bitset & shl(size_type bits);
+    bitset & operator<<=(size_type bits);
+    bitset operator<<(size_type bits) const;
+
+
+Logic operations:
+
+    // logical or
     bitset & operator|=(const bitset & other);
     bitset operator|(const bitset & other) const;
 
+    // logical and
     bitset & operator&=(const bitset & other);
     bitset operator&(const bitset & other) const;
 
+    // logical xor
     bitset & operator^=(const bitset & other);
     bitset operator^(const bitset & other) const;
 
