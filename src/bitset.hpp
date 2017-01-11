@@ -358,7 +358,7 @@ private:
 
 	/// Reads a block from the bit set.
 	///
-	/// @param[out] v The container to hold the data.
+	/// @return    The container to hold the data.
 	/// @param[in] ofs The offset in bits at which the data has to be read.
 	/// @param[in] bits Number of bits to be read.
 	///            If the number of bits is smaller than what the specified data can
@@ -366,7 +366,7 @@ private:
 	/// @exception std::out_of_range There are not enough bits to read, offset and number
 	///            of bits exceed the total number of available bits. It is not possible
 	///            to read past the end.
-	void get_block(block_type & v, size_type ofs, size_type bits = bits_per_block) const noexcept
+	block_type get_block(size_type ofs, size_type bits = bits_per_block) const noexcept
 	{
 		assert(bits > 0);
 		const size_type i = ofs / bits_per_block; // index of current block
@@ -377,13 +377,13 @@ private:
 		if (u_bits >= bits) {
 			// desired data fully within the current block
 			block_type mask = (1 << u_bits) - 1;
-			v = (data[i] & mask) >> (u_bits - bits);
+			return (data[i] & mask) >> (u_bits - bits);
 		} else {
 			// desired value is part from current block and part from next
 			block_type mask0 = (1 << u_bits) - 1;
 			block_type mask1 = ((1 << (bits_per_block - (bits - u_bits))) - 1)
 				<< (bits - u_bits);
-			v = (data[i + 0] & mask0) << (bits - u_bits)
+			return (data[i + 0] & mask0) << (bits - u_bits)
 				| (data[i + 1] & mask1) >> (bits_per_block - (bits - u_bits));
 		}
 	}
@@ -643,11 +643,9 @@ public: // get
 		// number of bits unused within the current block
 		size_type u_bits = bits_per_block - (ofs % bits_per_block);
 
-		block_type block{};
-
 		// fraction of the first block
 		if (u_bits > 0) {
-			get_block(block, ofs, u_bits);
+			auto block = get_block(ofs, u_bits);
 			if (bits < u_bits) {
 				block >>= (u_bits - bits);
 				bits = 0;
@@ -664,18 +662,16 @@ public: // get
 		// probably will eliminated it completely.
 		if (sizeof(T) * bits_per_byte > bits_per_block) {
 			for (; bits >= bits_per_block; bits -= bits_per_block) {
-				get_block(block, ofs);
 				value <<= bits_per_block;
-				value += block;
+				value += get_block(ofs);
 				ofs += bits_per_block;
 			}
 		}
 
 		// fraction of the last block
 		if (bits > 0) {
-			get_block(block, ofs, bits);
 			value <<= bits;
-			value += block;
+			value += get_block(ofs, bits);
 		}
 
 		return value;
@@ -809,8 +805,7 @@ public: // arithmetic operators
 		if (u_bits > 0) {
 			size_type ofs = bits_per_block * (size() / bits_per_block);
 
-			block_type block;
-			get_block(block, ofs, u_bits);
+			block_type block = get_block(ofs, u_bits);
 
 			if (block < (block_type{1} << u_bits)) {
 				++block;
@@ -853,8 +848,7 @@ public: // arithmetic operators
 		if (u_bits > 0) {
 			size_type ofs = bits_per_block * (size() / bits_per_block);
 
-			block_type block;
-			get_block(block, ofs, u_bits);
+			block_type block = get_block(ofs, u_bits);
 
 			if (block > 0) {
 				--block;
@@ -897,8 +891,7 @@ public: // shift operator
 			const size_type d = size() - r_ofs;
 			size_type u_bits = d < bits_per_block ? d : bits_per_block;
 
-			block_type block;
-			get_block(block, r_ofs, u_bits);
+			block_type block = get_block(r_ofs, u_bits);
 			set_block(block, w_ofs, u_bits);
 			r_ofs += u_bits;
 			w_ofs += u_bits;
