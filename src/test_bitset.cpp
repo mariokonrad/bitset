@@ -172,6 +172,17 @@ TEST_F(Test_utils_bitset, uint8__get)
 	EXPECT_EQ(false, b.get(7));
 }
 
+TEST_F(Test_utils_bitset, uint8__get_enum)
+{
+	enum foo { abc = 0, bcd = 1, cde = 2 };
+
+	bitset<uint8_t> b;
+
+	b.append(abc, 8);
+
+	EXPECT_EQ(abc, b.get<foo>(0, 8));
+}
+
 TEST_F(Test_utils_bitset, uint8__index_operator)
 {
 	bitset<uint8_t> b;
@@ -1564,6 +1575,14 @@ TEST_F(Test_utils_bitset, uint8__arithmetic__increment)
 		EXPECT_STREQ("0001", to_string(b).c_str());
 		b++;
 		EXPECT_STREQ("0010", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b;
+		b.append(0xf, 20);
+		ASSERT_STREQ("00000000000000001111", to_string(b).c_str());
+
+		++b;
+		EXPECT_STREQ("00000000000000010000", to_string(b).c_str());
 	}
 }
 

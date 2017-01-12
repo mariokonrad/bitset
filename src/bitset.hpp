@@ -820,7 +820,7 @@ public: // arithmetic operators
 
 			block_type block = get_block(ofs, u_bits);
 
-			if (block < (block_type{1} << u_bits)) {
+			if (block < ((block_type{1} << u_bits) - 1)) {
 				++block;
 				set_block(block, ofs, u_bits);
 				return *this;
