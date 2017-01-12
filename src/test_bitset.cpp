@@ -1249,4 +1249,40 @@ TEST_F(Test_utils_bitset, uint8__shift_left)
 		EXPECT_STREQ("00000", to_string(b).c_str());
 	}
 }
+
+TEST_F(Test_utils_bitset, uint8__shift_right)
+{
+	{
+		bitset<uint8_t> b;
+		b.append(0xffff, 12);
+		ASSERT_STREQ("111111111111", to_string(b).c_str());
+		b.shr(5);
+		EXPECT_STREQ("000001111111", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b;
+		b.append(0xf0, 8);
+		b.append(0x0f, 8);
+		b.append(0x0f, 8);
+		b.append(0xf0, 8);
+		ASSERT_STREQ("11110000000011110000111111110000", to_string(b).c_str());
+
+		b.shr(8);
+		EXPECT_STREQ("00000000111100000000111100001111", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b;
+		b.append(5, 5);
+		ASSERT_STREQ("00101", to_string(b).c_str());
+
+		b.shr(1);
+		EXPECT_STREQ("00010", to_string(b).c_str());
+
+		b.shr(1);
+		EXPECT_STREQ("00001", to_string(b).c_str());
+
+		b.shr(6);
+		EXPECT_STREQ("00000", to_string(b).c_str());
+	}
+}
 }

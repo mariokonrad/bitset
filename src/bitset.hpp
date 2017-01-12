@@ -393,6 +393,14 @@ private:
 		}
 	}
 
+	/// Copies a block from source to destination offsets.
+	///
+	/// This is the equivalent of `set_block(get_block(...), ...)`
+	void copy_block(size_type r_ofs, size_type w_ofs, size_type bits = bits_per_block)
+	{
+		set_block(get_block(r_ofs, bits), w_ofs, bits);
+	}
+
 public: // constructors
 
 	/// Copy constructor
@@ -887,6 +895,11 @@ public: // shift operator
 
 	bitset & shl(size_type bits)
 	{
+		if (bits >= size()) {
+			reset();
+			return *this;
+		}
+
 		// copy all bits necessary, block wise.
 		size_type r_ofs = bits;
 		size_type w_ofs = 0;
@@ -897,8 +910,7 @@ public: // shift operator
 			const size_type d = size() - r_ofs;
 			size_type u_bits = d < bits_per_block ? d : bits_per_block;
 
-			block_type block = get_block(r_ofs, u_bits);
-			set_block(block, w_ofs, u_bits);
+			copy_block(r_ofs, w_ofs, u_bits);
 			r_ofs += u_bits;
 			w_ofs += u_bits;
 		}
@@ -921,17 +933,67 @@ public: // shift operator
 
 	bitset operator<<(size_type bits) const { return bitset{*this} <<= bits; }
 
-	/* TODO
 	bitset & shr(size_type bits)
 	{
-		// TODO: implementation
+		if (bits >= size()) {
+			reset();
+			return *this;
+		}
+
+		size_type r_ofs = 0;
+		size_type w_ofs = 0;
+
+		// first: handle the last bits (probably partially a block, or a single block)
+		size_type u_bits = size() % bits_per_block;
+		if (u_bits > 0) {
+			if (u_bits == size()) {
+				u_bits = size() - bits;
+				r_ofs = 0;
+				w_ofs = bits;
+			} else {
+				r_ofs = size() - u_bits - bits;
+				w_ofs = size() - u_bits;
+			}
+		} else {
+			if (size() == bits_per_block) {
+				u_bits = bits;
+				r_ofs = 0;
+				w_ofs = bits;
+			} else {
+				u_bits = bits_per_block;
+				r_ofs = size() - bits_per_block - bits;
+				w_ofs = size() - bits_per_block;
+			}
+		}
+		copy_block(r_ofs, w_ofs, u_bits);
+
+		// second: handle whole blocks
+		while (r_ofs > 0) {
+			if (r_ofs > bits_per_block) {
+				u_bits = bits_per_block;
+				r_ofs -= bits_per_block;
+				w_ofs -= bits_per_block;
+			} else {
+				u_bits = r_ofs;
+				r_ofs = 0;
+				w_ofs -= u_bits;
+			}
+			copy_block(r_ofs, w_ofs, u_bits);
+		}
+
+		// third: reset all bits remaining in front
+		while (w_ofs > 0) {
+			u_bits = (w_ofs < bits_per_block) ? w_ofs : bits_per_block;
+			w_ofs -= u_bits;
+			set_block(0, w_ofs, u_bits);
+		}
+
 		return *this;
 	}
 
 	bitset & operator>>=(size_type bits) { return shr(bits); }
 
 	bitset operator>>(size_type bits) const { return bitset{*this} >>= bits; }
-	*/
 
 public: // logic operator
 

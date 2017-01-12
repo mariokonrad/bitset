@@ -114,6 +114,11 @@ Bit shift:
     bitset & operator<<=(size_type bits);
     bitset operator<<(size_type bits) const;
 
+    // shift right number of bits
+    bitset & shr(size_type bits);
+    bitset & operator>>=(size_type bits);
+    bitset operator>>(size_type bits) const;
+
 
 Logic operations:
 
