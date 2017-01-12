@@ -75,6 +75,120 @@ TEST_F(Test_utils_bitset, uint8__construction_container_move)
 	EXPECT_STREQ("1010101001010101", to_string(b).c_str());
 }
 
+TEST_F(Test_utils_bitset, uint8__construction_bitset_move)
+{
+	bitset<uint8_t> t;
+	t.append(0xaa55, 16);
+
+	bitset<uint8_t> b(std::move(t));
+
+	//            0       8       16      24      32      40      48      56
+	//            +-------+-------+-------+-------+-------+-------+-------+-------
+	EXPECT_STREQ("1010101001010101", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__reserve)
+{
+	bitset<uint8_t>::container c;
+	c.reserve(1);
+
+	bitset<uint8_t> b;
+
+	EXPECT_EQ(0u, b.capacity());
+	b.reserve(1);
+	EXPECT_EQ(c.capacity() * bitset<uint8_t>::bits_per_block, b.capacity());
+}
+
+TEST_F(Test_utils_bitset, uint8__clear)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+	b.clear();
+	EXPECT_EQ(0u, b.size());
+	EXPECT_STREQ("", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__append_to_self)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+	b.append(b);
+	EXPECT_STREQ("10101010", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__append_zero_bits)
+{
+	bitset<uint8_t> b;
+	ASSERT_STREQ("", to_string(b).c_str());
+	b.append(0xaa, 0);
+	EXPECT_STREQ("", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__set_into_self)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+	b.set(b, 1);
+	EXPECT_STREQ("10101010", to_string(b).c_str());
+}
+
+TEST_F(Test_utils_bitset, uint8__test_bit)
+{
+	bitset<uint8_t> b;
+
+	b.append(0xaa, 8);
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+
+	EXPECT_EQ(1u, b.test(0));
+	EXPECT_EQ(0u, b.test(1));
+	EXPECT_EQ(1u, b.test(2));
+	EXPECT_EQ(0u, b.test(3));
+	EXPECT_EQ(1u, b.test(4));
+	EXPECT_EQ(0u, b.test(5));
+	EXPECT_EQ(1u, b.test(6));
+	EXPECT_EQ(0u, b.test(7));
+}
+
+TEST_F(Test_utils_bitset, uint8__get)
+{
+	bitset<uint8_t> b;
+
+	b.append(0xaa, 8);
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+
+	EXPECT_EQ(true, b.get(0));
+	EXPECT_EQ(false, b.get(1));
+	EXPECT_EQ(true, b.get(2));
+	EXPECT_EQ(false, b.get(3));
+	EXPECT_EQ(true, b.get(4));
+	EXPECT_EQ(false, b.get(5));
+	EXPECT_EQ(true, b.get(6));
+	EXPECT_EQ(false, b.get(7));
+}
+
+TEST_F(Test_utils_bitset, uint8__index_operator)
+{
+	bitset<uint8_t> b;
+
+	b.append(0xaa, 8);
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+
+	EXPECT_EQ(true,  b[0]);
+	EXPECT_EQ(false, b[1]);
+	EXPECT_EQ(true,  b[2]);
+	EXPECT_EQ(false, b[3]);
+	EXPECT_EQ(true,  b[4]);
+	EXPECT_EQ(false, b[5]);
+	EXPECT_EQ(true,  b[6]);
+	EXPECT_EQ(false, b[7]);
+}
+
 TEST_F(Test_utils_bitset, const_iterator_comparison_less)
 {
 	bitset<uint8_t> b{16};
@@ -1100,6 +1214,18 @@ TEST_F(Test_utils_bitset, uint8__logic_or_assign)
 	EXPECT_EQ(0xaa00, c.get<uint16_t>(0, 16));
 }
 
+TEST_F(Test_utils_bitset, uint8__logic_or)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	a.append(0xaa, 8);
+	b.append(0x55, 8);
+
+	auto c = a | b;
+
+	EXPECT_EQ(0xff, c.get<uint8_t>(0));
+}
+
 TEST_F(Test_utils_bitset, uint8__logic_and_assign)
 {
 	{
@@ -1139,6 +1265,18 @@ TEST_F(Test_utils_bitset, uint8__logic_and_assign)
 
 		EXPECT_EQ(4u, bs1.get<uint8_t>(0, 4));
 	}
+}
+
+TEST_F(Test_utils_bitset, uint8__logic_and)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	a.append(0xa5, 8);
+	b.append(0x55, 8);
+
+	auto c = a & b;
+
+	EXPECT_EQ(0x05, c.get<uint8_t>(0));
 }
 
 TEST_F(Test_utils_bitset, error_get_block)
@@ -1248,6 +1386,20 @@ TEST_F(Test_utils_bitset, uint8__shift_left)
 		b.shl(6);
 		EXPECT_STREQ("00000", to_string(b).c_str());
 	}
+	{
+		bitset<uint8_t> b;
+		b.append(5, 5);
+		ASSERT_STREQ("00101", to_string(b).c_str());
+		b <<= 2;
+		EXPECT_STREQ("10100", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b;
+		b.append(5, 5);
+		ASSERT_STREQ("00101", to_string(b).c_str());
+		auto t = b << 2;
+		EXPECT_STREQ("10100", to_string(t).c_str());
+	}
 }
 
 TEST_F(Test_utils_bitset, uint8__shift_right)
@@ -1283,6 +1435,20 @@ TEST_F(Test_utils_bitset, uint8__shift_right)
 
 		b.shr(6);
 		EXPECT_STREQ("00000", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b;
+		b.append(5, 5);
+		ASSERT_STREQ("00101", to_string(b).c_str());
+		b >>= 1;
+		EXPECT_STREQ("00010", to_string(b).c_str());
+	}
+	{
+		bitset<uint8_t> b;
+		b.append(5, 5);
+		ASSERT_STREQ("00101", to_string(b).c_str());
+		auto t = b >> 1;
+		EXPECT_STREQ("00010", to_string(t).c_str());
 	}
 }
 }
