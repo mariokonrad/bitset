@@ -189,6 +189,13 @@ TEST_F(Test_utils_bitset, uint8__index_operator)
 	EXPECT_EQ(false, b[7]);
 }
 
+TEST_F(Test_utils_bitset, const_iterator__default_construction)
+{
+	bitset<uint8_t>::const_iterator i;
+
+	EXPECT_EQ(0u, i.get_pos());
+}
+
 TEST_F(Test_utils_bitset, const_iterator_begin)
 {
 	bitset<uint8_t> b;
@@ -222,6 +229,19 @@ TEST_F(Test_utils_bitset, const_iterator_comparison_less)
 	EXPECT_TRUE(i < k);
 }
 
+TEST_F(Test_utils_bitset, const_iterator_comparison_less_or_equal)
+{
+	bitset<uint8_t> b{16};
+
+	auto i = b.begin();
+	auto j = b.begin();
+	auto k = b.begin();
+	++k;
+
+	EXPECT_TRUE(i <= j);
+	EXPECT_TRUE(i <= k);
+}
+
 TEST_F(Test_utils_bitset, const_iterator_comparison_greater)
 {
 	bitset<uint8_t> b{16};
@@ -233,6 +253,19 @@ TEST_F(Test_utils_bitset, const_iterator_comparison_greater)
 
 	EXPECT_FALSE(i > j);
 	EXPECT_TRUE(k > i);
+}
+
+TEST_F(Test_utils_bitset, const_iterator_comparison_greater_or_equal)
+{
+	bitset<uint8_t> b{16};
+
+	auto i = b.begin();
+	auto j = b.begin();
+	auto k = b.begin();
+	++k;
+
+	EXPECT_TRUE(i >= j);
+	EXPECT_TRUE(k >= i);
 }
 
 TEST_F(Test_utils_bitset, uint8__append_single_bits)
@@ -1184,7 +1217,7 @@ TEST_F(Test_utils_bitset, uint8__set_bit_out_of_range)
 
 TEST_F(Test_utils_bitset, uint8__const_iterator__plus_equal)
 {
-	bitset<uint8_t> b{32};
+	bitset<uint8_t> b;
 	b.append(0xaaaaaaaa, 32);
 
 	auto i = b.begin();
@@ -1202,11 +1235,32 @@ TEST_F(Test_utils_bitset, uint8__const_iterator__plus_equal)
 	EXPECT_EQ(6u, i.get_pos());
 	i += 3;
 	EXPECT_EQ(9u, i.get_pos());
+
+	i += b.size() + 1;
+	EXPECT_EQ(32u, i.get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__increment)
+{
+	bitset<uint8_t> b;
+	b.append(0xaaaaaaaa, 32);
+
+	auto i = b.begin();
+
+	EXPECT_EQ(0u, i.get_pos());
+	++i;
+	EXPECT_EQ(1u, i.get_pos());
+	++i;
+	EXPECT_EQ(2u, i.get_pos());
+	i++;
+	EXPECT_EQ(3u, i.get_pos());
+	i++;
+	EXPECT_EQ(4u, i.get_pos());
 }
 
 TEST_F(Test_utils_bitset, uint8__const_iterator__plus)
 {
-	bitset<uint8_t> b{32};
+	bitset<uint8_t> b;
 	b.append(0xaaaaaaaa, 32);
 
 	auto i = b.begin();
@@ -1219,6 +1273,128 @@ TEST_F(Test_utils_bitset, uint8__const_iterator__plus)
 	EXPECT_EQ(4u, (i + 4).get_pos());
 	EXPECT_EQ(6u, (i + 6).get_pos());
 	EXPECT_EQ(9u, (i + 9).get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__minus_equal)
+{
+	bitset<uint8_t> b;
+	b.append(0xaaaaaaaa, 32);
+
+	auto i = b.end();
+
+	EXPECT_EQ(32u, i.get_pos());
+	i -= 1;
+	EXPECT_EQ(31u, i.get_pos());
+	i -= 1;
+	EXPECT_EQ(30u, i.get_pos());
+	i -= 1;
+	EXPECT_EQ(29u, i.get_pos());
+	i -= 1;
+	EXPECT_EQ(28u, i.get_pos());
+	i -= 2;
+	EXPECT_EQ(26u, i.get_pos());
+	i -= 3;
+	EXPECT_EQ(23u, i.get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__decrement)
+{
+	bitset<uint8_t> b;
+	b.append(0xaaaaaaaa, 32);
+
+	auto i = b.end();
+
+	EXPECT_EQ(32u, i.get_pos());
+	--i;
+	EXPECT_EQ(31u, i.get_pos());
+	--i;
+	EXPECT_EQ(30u, i.get_pos());
+	i--;
+	EXPECT_EQ(29u, i.get_pos());
+	i--;
+	EXPECT_EQ(28u, i.get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__minus)
+{
+	bitset<uint8_t> b;
+	b.append(0xaaaaaaaa, 32);
+
+	auto i = b.end();
+
+	ASSERT_EQ(32u, i.get_pos());
+
+	EXPECT_EQ(31u, (i - 1).get_pos());
+	EXPECT_EQ(30u, (i - 2).get_pos());
+	EXPECT_EQ(29u, (i - 3).get_pos());
+	EXPECT_EQ(28u, (i - 4).get_pos());
+	EXPECT_EQ(26u, (i - 6).get_pos());
+	EXPECT_EQ(23u, (i - 9).get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__read)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	uint8_t v;
+
+	auto i = b.begin();
+	ASSERT_EQ(0u, i.get_pos());
+
+	i.read(v, 2);
+	EXPECT_EQ(2u, v);
+	EXPECT_EQ(2u, i.get_pos());
+
+	i.read(v, 3);
+	EXPECT_EQ(5u, v);
+	EXPECT_EQ(5u, i.get_pos());
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__peek)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	auto i = b.begin();
+	ASSERT_STREQ("10101010", to_string(b).c_str());
+
+	{
+		uint8_t v;
+		i.peek(v, 8);
+		EXPECT_EQ(0xaa, v);
+	}
+	{
+		uint8_t v;
+		i.peek(v, 4);
+		EXPECT_EQ(0xa, v);
+	}
+	{
+		uint8_t v;
+		i.peek(v, 3);
+		EXPECT_EQ(5u, v);
+	}
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__peek_no_bitset)
+{
+	bitset<uint8_t>::const_iterator i;
+
+	uint8_t v = 0xff;
+	i.peek(v);
+
+	EXPECT_EQ(0xff, v);
+}
+
+TEST_F(Test_utils_bitset, uint8__const_iterator__peek_to_large)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	auto i = b.begin();
+
+	uint32_t v;
+	EXPECT_ANY_THROW(i.peek(v));
 }
 
 TEST_F(Test_utils_bitset, uint8__logic_xor_assign)
