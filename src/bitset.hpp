@@ -234,8 +234,7 @@ private:
 	/// Extension is always one block.
 	void extend(size_type bits)
 	{
-		if (bits <= 0)
-			return;
+		assert(bits > 0);
 		size_type n_blocks = (pos + bits + bits_per_block - 1) / bits_per_block;
 		if (n_blocks > data.capacity()) {
 			data.reserve(n_blocks);
@@ -254,8 +253,7 @@ private:
 	///            appended, only the least significant bits are being taken.
 	void append_block(block_type v, size_type bits = bits_per_block)
 	{
-		if (bits <= 0)
-			return;
+		assert(bits > 0);
 		extend(bits);
 		size_type i = pos / bits_per_block; // index of current block
 
@@ -319,8 +317,7 @@ private:
 	template <typename T>
 	void set_impl(T v, size_type ofs, size_type bits = sizeof(T) * bits_per_byte)
 	{
-		if (bits <= 0)
-			return;
+		assert(bits > 0);
 		if (bits > sizeof(v) * bits_per_byte)
 			throw std::invalid_argument{"number of bit exceed number of available bits"};
 		if (ofs + bits > capacity())
