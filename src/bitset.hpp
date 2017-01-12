@@ -49,6 +49,11 @@ namespace mk
 /// bits.set(1, 512, 1); // set one bit to 1 at offset 512
 /// @endcode
 ///
+/// @todo shr: shift right
+/// @todo iterator
+/// @todo function to extract a subrange of the bitset: bitset sub(const_iterator, const_iterator) cont
+/// @todo function set(bitset, size_type) or set(bitset, const_iterator)
+///
 template <class Block,
 	class = typename std::enable_if<!std::numeric_limits<Block>::is_signed>::type>
 class bitset
@@ -79,8 +84,8 @@ public:
 		using iterator_category = std::random_access_iterator_tag;
 
 	private:
-		const bitset * bs;
-		size_type pos;
+		const bitset * bs; ///< Associated bitset.
+		size_type pos; ///< Position (bit) within the bitset.
 
 	private:
 		const_iterator(const bitset * const bs, size_type pos)
@@ -201,6 +206,7 @@ public:
 			return res;
 		}
 
+		/// Peeks from the bitset, but does not advance the iterator.
 		template <typename T> void peek(T & v, size_type bits = sizeof(T) * bits_per_byte) const
 		{
 			if (bs == nullptr)
@@ -211,14 +217,13 @@ public:
 			bs->get(v, pos, bits);
 		}
 
+		/// Reads from the bitset and advances the iterator the number of read bits.
 		template <typename T> void read(T & v, size_type bits = sizeof(T) * bits_per_byte)
 		{
 			peek(v, bits);
 			*this += bits;
 		}
 	};
-
-	// TODO: class iterator
 
 private:
 	size_type pos; // number of bits contained within the set
@@ -879,6 +884,7 @@ public: // arithmetic operators
 	}
 
 public: // shift operator
+
 	bitset & shl(size_type bits)
 	{
 		// copy all bits necessary, block wise.
@@ -925,22 +931,6 @@ public: // shift operator
 	bitset & operator>>=(size_type bits) { return shr(bits); }
 
 	bitset operator>>(size_type bits) const { return bitset{*this} >>= bits; }
-	*/
-
-	/* TODO
-	bitset & rol(size_type bits)
-	{
-		// TODO: implementation
-		return *this;
-	}
-	*/
-
-	/* TODO
-	bitset & ror(size_type bits)
-	{
-		// TODO: implementation
-		return *this;
-	}
 	*/
 
 public: // logic operator
