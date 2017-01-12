@@ -189,6 +189,26 @@ TEST_F(Test_utils_bitset, uint8__index_operator)
 	EXPECT_EQ(false, b[7]);
 }
 
+TEST_F(Test_utils_bitset, const_iterator_begin)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	const bitset<uint8_t> & c = b;
+
+	EXPECT_EQ(c.begin(), b.cbegin());
+}
+
+TEST_F(Test_utils_bitset, const_iterator_end)
+{
+	bitset<uint8_t> b;
+	b.append(0xaa, 8);
+
+	const bitset<uint8_t> & c = b;
+
+	EXPECT_EQ(c.end(), b.cend());
+}
+
 TEST_F(Test_utils_bitset, const_iterator_comparison_less)
 {
 	bitset<uint8_t> b{16};
@@ -914,14 +934,17 @@ TEST_F(Test_utils_bitset, uint8__uint16__comparison_equal)
 	bitset<uint8_t> a;
 	bitset<uint16_t> b;
 	bitset<uint16_t> c;
+	bitset<uint16_t> d;
 
 	a.append(0xaa, 8);
 	b.append(0xaa, 8);
 	c.append(0xaaaa, 16);
+	d.append(0xa8, 8);
 
 	EXPECT_TRUE(a == a);
 	EXPECT_TRUE(b == b);
 	EXPECT_TRUE(c == c);
+	EXPECT_TRUE(d == d);
 
 	EXPECT_TRUE(a == b);
 	EXPECT_TRUE(b == a);
@@ -930,6 +953,7 @@ TEST_F(Test_utils_bitset, uint8__uint16__comparison_equal)
 	EXPECT_FALSE(c == a);
 	EXPECT_FALSE(b == c);
 	EXPECT_FALSE(c == b);
+	EXPECT_FALSE(a == d);
 }
 
 TEST_F(Test_utils_bitset, uint8__comparison_not_equal)
@@ -1197,6 +1221,49 @@ TEST_F(Test_utils_bitset, uint8__const_iterator__plus)
 	EXPECT_EQ(9u, (i + 9).get_pos());
 }
 
+TEST_F(Test_utils_bitset, uint8__logic_xor_assign)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+
+	a.append(0x0aaa, 16);
+	b.append(0xaaa0, 16);
+
+	a ^= b;
+
+	EXPECT_EQ(0xa00a, a.get<uint16_t>(0));
+}
+
+TEST_F(Test_utils_bitset, uint8__logic_xor_assign__different_size)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	bitset<uint8_t> c;
+
+	a.append(0x0a, 8);
+	b.append(0xaaa0, 16);
+
+	ASSERT_EQ(8u, a.size());
+
+	a ^= b;
+
+	EXPECT_EQ(16u, a.size());
+	EXPECT_EQ(0xa0a0, a.get<uint16_t>(0));
+}
+
+TEST_F(Test_utils_bitset, uint8__logic_xor)
+{
+	bitset<uint8_t> a;
+	bitset<uint8_t> b;
+	a.append(0xaa, 8);
+	b.append(0x55, 8);
+
+	auto c = a ^ b;
+
+	EXPECT_EQ(0xff, c.get<uint8_t>(0));
+}
+
 TEST_F(Test_utils_bitset, uint8__logic_or_assign)
 {
 	bitset<uint8_t> a;
@@ -1357,6 +1424,24 @@ TEST_F(Test_utils_bitset, uint8__arithmetic__decrement)
 		b--;
 		EXPECT_STREQ("1101", to_string(b).c_str());
 	}
+}
+
+TEST_F(Test_utils_bitset, uint8__arithmetic__increment_empty)
+{
+	bitset<uint8_t> b;
+
+	ASSERT_EQ(0u, b.size());
+	++b;
+	EXPECT_EQ(0u, b.size());
+}
+
+TEST_F(Test_utils_bitset, uint8__arithmetic__decrement_empty)
+{
+	bitset<uint8_t> b;
+
+	ASSERT_EQ(0u, b.size());
+	--b;
+	EXPECT_EQ(0u, b.size());
 }
 
 TEST_F(Test_utils_bitset, uint8__shift_left)
