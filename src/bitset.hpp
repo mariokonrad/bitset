@@ -890,6 +890,7 @@ public: // arithmetic operators
 
 public: // shift operator
 
+	/// Bit shift left. This function tries to shift entire blocks at once.
 	bitset & shl(size_type bits)
 	{
 		if (bits >= size()) {
@@ -930,6 +931,8 @@ public: // shift operator
 
 	bitset operator<<(size_type bits) const { return bitset{*this} <<= bits; }
 
+	/// Bit shift right. This function tries to shift entire blocks
+	/// at once.
 	bitset & shr(size_type bits)
 	{
 		if (bits >= size()) {
@@ -953,7 +956,7 @@ public: // shift operator
 			}
 		} else {
 			if (size() == bits_per_block) {
-				u_bits = bits;
+				u_bits = bits_per_block - bits;
 				r_ofs = 0;
 				w_ofs = bits;
 			} else {

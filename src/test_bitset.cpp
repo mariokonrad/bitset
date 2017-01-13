@@ -1730,5 +1730,12 @@ TEST_F(Test_utils_bitset, uint8__shift_right)
 		auto t = b >> 1;
 		EXPECT_STREQ("00010", to_string(t).c_str());
 	}
+	{
+		bitset<uint8_t> b;
+		b.append(0xaa, 8);
+		ASSERT_STREQ("10101010", to_string(b).c_str());
+		b.shr(1);
+		EXPECT_STREQ("01010101", to_string(b).c_str());
+	}
 }
 }
