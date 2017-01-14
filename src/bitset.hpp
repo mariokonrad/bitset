@@ -445,6 +445,36 @@ public: // constructors
 	{
 	}
 
+	/// Constructs a bitset from the specified range.
+	///
+	/// It tries to copy blockwise.
+	bitset(const_iterator first, const_iterator last)
+		: pos(0)
+	{
+		if (last <= first)
+			return;
+		if (!first.bs)
+			return;
+
+		const size_type distance = last.pos - first.pos;
+		const size_type n_blocks = distance / bits_per_block;
+		const size_type u_bits = distance % bits_per_block;
+
+		if (u_bits > 0) {
+			data.reserve(n_blocks + 1);
+		} else {
+			data.reserve(n_blocks);
+		}
+
+		size_type r_ofs = first.pos;
+		for (size_type i = 0; i < n_blocks; ++i, r_ofs += bits_per_block)
+			data.push_back(first.bs->get_block(r_ofs, bits_per_block));
+		pos = n_blocks * bits_per_block;
+
+		if (u_bits > 0)
+			append(first.bs->get_block(r_ofs, u_bits), u_bits);
+	}
+
 public: // container operations
 	/// Returns the capacity of this bit set. Note: not all bits must have
 	/// been occupied.
