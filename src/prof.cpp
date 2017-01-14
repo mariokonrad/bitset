@@ -17,7 +17,7 @@ static void set_bits_large_bitset(uint64_t times)
 	const int SIZE = 1024 * 1024;
 
 	for (uint64_t i = 0; i < times; ++i) {
-		bitset<uint8_t> b{SIZE+128};
+		bitset<uint8_t> b{SIZE + 128};
 		for (size_t j = 0; j < SIZE; ++j) {
 			b.set(1, j, 1);
 		}
