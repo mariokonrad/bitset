@@ -49,9 +49,9 @@ namespace mk
 /// bits.set(1, 512, 1); // set one bit to 1 at offset 512
 /// @endcode
 ///
-/// @todo shr: shift right
 /// @todo iterator
-/// @todo function to extract a subrange of the bitset: bitset sub(const_iterator, const_iterator) cont
+/// @todo function to extract a subrange of the bitset:
+///       bitset sub(const_iterator, const_iterator) const
 /// @todo function set(bitset, size_type) or set(bitset, const_iterator)
 ///
 template <class Block,
