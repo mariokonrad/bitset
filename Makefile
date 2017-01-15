@@ -3,7 +3,6 @@
 .PHONY: all clean unittest coverage
 
 #CXX=g++-6
-CXX=g++
 CXXFLAGS=-O0 -Wall -Wextra -std=c++11 -pedantic -ggdb -Isrc -Igmock-1.7.0
 
 all : bit testrunner prof
