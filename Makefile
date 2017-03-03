@@ -1,15 +1,14 @@
-# Makefile
-
-.PHONY: all clean unittest coverage
-
 #CXX=g++-6
 CXXFLAGS=-O0 -Wall -Wextra -std=c++11 -pedantic -ggdb -Isrc -Igmock-1.7.0
 
+.PHONY: all
 all : bit testrunner prof
 
+.PHONY: unittest
 unittest : testrunner
 	./testrunner
 
+.PHONY: coverage
 coverage : testrunner
 	lcov --quiet --zerocounters --directory src --output-file coverage.info
 	./testrunner
@@ -40,6 +39,7 @@ prof : src/prof.o
 src/prof.o : src/prof.cpp src/bitset.hpp
 	$(CXX) -o $@ -c $< -O3 -Wall -Wextra -std=c++11 -pedantic -ggdb -I. -fprofile-arcs -pg
 
+.PHONY: clean
 clean :
 	find . -name "*.o" | xargs rm -f
 	find . -name "*.gcda" | xargs rm -f

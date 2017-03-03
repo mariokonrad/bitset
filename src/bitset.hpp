@@ -75,6 +75,7 @@ public:
 		friend class bitset;
 
 	public:
+		using difference_type = long long;
 		using value_type = bool;
 		using iterator_category = std::random_access_iterator_tag;
 
@@ -468,6 +469,14 @@ public: // constructors
 
 		if (u_bits > 0)
 			append(first.bs->get_block(r_ofs, u_bits), u_bits);
+	}
+
+	/// Constructs a bitset using the provided blocks.
+	bitset(std::initializer_list<Block> init_list)
+		: pos(0)
+	{
+		data.assign(init_list);
+		pos = data.size() * bits_per_block;
 	}
 
 public: // container operations
