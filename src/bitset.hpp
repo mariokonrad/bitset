@@ -662,8 +662,9 @@ public: // get
 	/// @exception std::out_of_range Offset and bits exceed the number of available
 	///            bits. It is not possible to read beyond the end.
 	template <class T>
-	typename std::enable_if<std::is_integral<T>::value, T>::type get(
-		size_type ofs, size_type bits = sizeof(T) * bits_per_byte) const
+	typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, bool>::value,
+		T>::type
+	get(size_type ofs, size_type bits = sizeof(T) * bits_per_byte) const
 	{
 		if (bits <= 0)
 			return T{};
@@ -715,6 +716,10 @@ public: // get
 		return value;
 	}
 
+	/// Specialization of `get` for bool.
+	bool get(size_type index) const { return get_bit(index); }
+
+	/// Specialization of `get` for enumerations.
 	template <class T>
 	typename std::enable_if<std::is_enum<T>::value, T>::type get(
 		size_type ofs, size_type bits = sizeof(T) * bits_per_byte) const
@@ -728,7 +733,6 @@ public: // get
 		value = get<T>(ofs, bits);
 	}
 
-	bool get(size_type index) const { return get<bool>(index, 1); }
 
 public: // access operators
 	/// Returns the bit at the specified position.
