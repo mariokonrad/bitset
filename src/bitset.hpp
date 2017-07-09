@@ -1,7 +1,7 @@
-#ifndef __MK__BITSET__HPP__
-#define __MK__BITSET__HPP__
+#ifndef MK__BITSET__HPP
+#define MK__BITSET__HPP
 
-/// Copyright (c) 2016 Mario Konrad <mario.konrad@gmx.net>
+/// Copyright (c) 2017 Mario Konrad <mario.konrad@gmx.net>
 /// The code is licensed under the BSD License (see file LICENSE)
 
 #include <limits>
@@ -45,7 +45,7 @@ namespace mk
 ///
 /// **Example:** bitset with initial number of bits
 /// @code
-/// bitset<uint8_t> bits{1024};
+/// bitset<uint8_t> bits(1024);
 /// bits.set(1, 512, 1); // set one bit to 1 at offset 512
 /// @endcode
 ///
@@ -716,9 +716,6 @@ public: // get
 		return value;
 	}
 
-	/// Specialization of `get` for bool.
-	bool get(size_type index) const { return get_bit(index); }
-
 	/// Specialization of `get` for enumerations.
 	template <class T>
 	typename std::enable_if<std::is_enum<T>::value, T>::type get(
@@ -727,12 +724,20 @@ public: // get
 		return static_cast<T>(get<typename std::underlying_type<T>::type>(ofs, bits));
 	}
 
-	template <class T>
+	/// Specialization of `get` for bool.
+	template <class T, typename std::enable_if<std::is_same<T, bool>::value, int>::type = 0>
+	void get(T & value, size_type ofs, size_type = 1) const
+	{
+		value = get_bit(ofs);
+	}
+
+	template <class T, typename std::enable_if<!std::is_same<T, bool>::value, int>::type = 0>
 	void get(T & value, size_type ofs, size_type bits = sizeof(T) * bits_per_byte) const
 	{
 		value = get<T>(ofs, bits);
 	}
 
+	bool get(size_type ofs) const { return get_bit(ofs); }
 
 public: // access operators
 	/// Returns the bit at the specified position.
